@@ -1,0 +1,8 @@
+jobs: $ncpus
+
+packages:
+    message
+    studio/back
+    store
+    ident
+    dumb

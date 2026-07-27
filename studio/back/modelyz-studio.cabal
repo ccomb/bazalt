@@ -1,0 +1,44 @@
+cabal-version:      3.4
+name:               modelyz-studio
+version:            0.18.0.0
+synopsis: Modeling studio for Modelyz
+-- description:
+-- bug-reports:
+license: AGPL-3.0-or-later
+license-file:        LICENSE
+author:              Christophe Combelles
+maintainer:          ccomb@free.fr
+-- copyright:
+-- category:
+-- extra-source-files:  CHANGELOG.md
+
+source-repository head
+    type: git
+    location: https://github.com/Modelyz/studio
+
+executable studio
+    main-is:          Main.hs
+    hs-source-dirs:   src
+  -- other-extensions:
+    ghc-options: -Wall -O
+    build-depends:
+        base >= 4.17
+        , aeson >= 2.1
+        , bytestring
+        , containers
+        , http-types
+        , modelyz-message
+        , mtl
+        , optparse-applicative
+        , scientific
+        , text
+        , time
+        , unordered-containers
+        , uuid
+        , vector
+        , wai
+        , wai-websockets
+        , warp
+        , websockets
+  -- hs-source-dirs:
+    default-language:    GHC2021

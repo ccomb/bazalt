@@ -1,0 +1,38 @@
+cabal-version:      3.4
+name:               modelyz-dumb
+version:            0.2.0.0
+synopsis: Modelyz microservice that does nothing but returning a msg considered as processed
+-- description:
+-- bug-reports:
+license: AGPL-3.0-or-later
+license-file:        LICENSE
+author:             Christophe Combelles
+maintainer:         ccomb@free.fr
+
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files: CHANGELOG.md
+
+source-repository head
+    type: git
+    location: https://github.com/Modelyz/dumb
+
+executable dumb
+    main-is:          Main.hs
+    hs-source-dirs:   src
+    ghc-options: -Wall -O2
+    build-depends:
+        base ^>= 4.17.0.0
+        , aeson ^>= 2.1
+        , containers
+        , modelyz-message
+        , optparse-applicative
+        , time
+        , uuid
+        , wai
+        , wai-websockets
+        , warp
+        , websockets
+
+    default-language: GHC2021

@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  store:
+    image: modelyz
+    command: /srv/store/store -h store
+    ports:
+      - "8081:8081"
+    volumes:
+      - store:/srv/store/data
+
+  studio:
+    image: modelyz
+    command: /srv/studio/studio -d studio -f studio/data/messagestore.txt --store_host store --store_port 8081
+    environment:
+      - WSS=ws://localhost:8080
+    depends_on:
+      - store
+    ports:
+      - "8080:8080"
+    volumes:
+      - studio:/srv/studio/data
+
+  ident:
+    image: modelyz
+    command: /srv/ident/ident --store_host store
+    depends_on:
+      - store
+    volumes:
+      - ident:/srv/ident/data
+
+  dumb:
+    image: modelyz
+    command: /srv/dumb/dumb --store_host store
+    depends_on:
+      - store
+    volumes:
+      - dumb:/srv/dumb/data
+
+volumes:
+  store:
+  studio:
+  ident:
+  dumb:

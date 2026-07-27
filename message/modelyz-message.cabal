@@ -1,0 +1,91 @@
+cabal-version:      3.4
+name:               modelyz-message
+version:            0.2.0.0
+synopsis:           Message definitions for Modelyz
+-- description:
+homepage:           https://github.com/Modelyz/message
+license:            AGPL-3.0-or-later
+license-file:       LICENSE
+author:             Christophe Combelles
+maintainer:         ccomb@free.fr
+-- copyright:
+category:           Development
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall -O
+
+library
+    import:           warnings
+    exposed-modules:  
+        Agent.Agent
+        , AgentType.AgentType
+        , Commitment.Commitment
+        , CommitmentType.CommitmentType
+        , Configuration
+        , Configuration.Zone
+        , Configuration.Zone.Fragment
+        , Connection
+        , Contract.Contract
+        , ContractType.ContractType
+        , Event.Event
+        , EventType.EventType
+        , Expression
+        , Expression.Binary
+        , Expression.Deeplink
+        , Expression.HardLink
+        , Expression.Observable
+        , Expression.Unary
+        , Expression.ValueSelection
+        , Flow
+        , Group.Group
+        , Group.Link
+        , GroupType.GroupType
+        , Ident.Fragment
+        , Ident.Identification
+        , Ident.Identifier
+        , Ident.IdentifierType
+        , Message
+        , MessageFlow
+        , MessageId
+        , Metadata
+        , Payload
+        , Process.Process
+        , Process.Reconcile
+        , ProcessType.ProcessType
+        , Resource.Resource
+        , ResourceType.ResourceType
+        , Scope
+        , Service
+        , Tree
+        , Type
+        , Value.Value
+        , Value.ValueType
+
+    -- other-modules:
+    -- other-extensions:
+    build-depends:
+        base ^>=4.17
+        , aeson ^>= 2.1
+        , bytestring
+        , containers
+        , scientific
+        , time
+        , text
+        , uuid ^>=1.3
+        , vector
+    hs-source-dirs:   src
+    default-language: GHC2021
+
+test-suite modelyz-message-test
+    import:           warnings
+    default-language: GHC2021
+    -- other-modules:
+    -- other-extensions:
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Main.hs
+    build-depends:
+        base ^>=4.16.4.0

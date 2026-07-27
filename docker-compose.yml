@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  store:
+    image: rg.fr-par.scw.cloud/prelab/modelyz
+    command: /srv/store/store -h store
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    volumes:
+      - store:/srv/store/data
+    networks:
+      - caddy_default
+
+
+  studio:
+    image: rg.fr-par.scw.cloud/prelab/modelyz
+    command: /srv/studio/studio -d /srv/studio -f studio/data/messagestore.txt --store_host store
+    restart: unless-stopped
+    environment:
+      - WSS=$WSS
+    depends_on:
+      - store
+    ports:
+      - "8080:8080"
+    volumes:
+      - studio:/srv/studio/data
+    networks:
+      - caddy_default
+
+  ident:
+    image: rg.fr-par.scw.cloud/prelab/modelyz
+    command: /srv/ident/ident --store_host store
+    restart: unless-stopped
+    depends_on:
+      - store
+    volumes:
+      - ident:/srv/ident/data
+    networks:
+      - caddy_default
+
+  dumb:
+    image: rg.fr-par.scw.cloud/prelab/modelyz
+    command: /srv/dumb/dumb --store_host store
+    restart: unless-stopped
+    depends_on:
+      - store
+    volumes:
+      - dumb:/srv/dumb/data
+    networks:
+      - caddy_default
+
+volumes:
+  store:
+    driver: anybox/buttervolume:latest
+  studio:
+    driver: anybox/buttervolume:latest
+  ident:
+    driver: anybox/buttervolume:latest
+  dumb:
+    driver: anybox/buttervolume:latest
+
+networks:
+  caddy_default:
+    external: true
+
