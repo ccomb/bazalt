@@ -2,7 +2,7 @@ module Ident.Fragment (Fragment (..)) where
 
 import Data.Aeson as JSON (FromJSON, Options (sumEncoding), ToJSON, Value (..), defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
 import Data.Aeson.Types (Parser, SumEncoding (..))
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text (Text)
 import Data.Time.Calendar.Month (Month (..))
 import Data.Time.Calendar.WeekDate (DayOfWeek (..))
@@ -24,7 +24,7 @@ data Fragment
     | Minute Int
     | Second Int
     | DateFrom {field :: Text, when :: POSIXTime}
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Fragment where
     parseJSON :: JSON.Value -> Parser Fragment

@@ -2,7 +2,7 @@ module Configuration.Zone.Fragment where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Scope
@@ -21,7 +21,7 @@ data Fragment
     | Provider
     | Receiver
     | EventList {qtySep :: Separator, eventSep :: Separator}
-    deriving (Eq, Generic, Data, Typeable, Ord, Show)
+    deriving (Eq, Generic, Data, Ord, Show)
 
 instance FromJSON Fragment where
     parseJSON :: Value -> Parser Fragment

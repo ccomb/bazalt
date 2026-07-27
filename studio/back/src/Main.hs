@@ -335,7 +335,7 @@ serve (Options d host port msgPath storeHost storePort) = do
     firstTime <- getPOSIXTime
     storeChan <- dupChan chan -- output channel to the central message store
     _ <- forkIO $ reconnectClient 1 firstTime storeHost storePort msgPath storeChan msgsMV stateMV
-    putStrLn $! "Modelyz Studio, serving on http://" ++ show host ++ ":" ++ show port ++ "/"
+    putStrLn $! "Bazalt Studio, serving on http://" ++ show host ++ ":" ++ show port ++ "/"
     -- listen for client browsers
     Warp.run port $ websocketsOr WS.defaultConnectionOptions (serverApp msgsMV msgPath chan) $ httpApp (Options d host port msgPath storeHost storePort)
 
@@ -348,5 +348,5 @@ main =
             (options <**> helper)
             ( fullDesc
                 <> progDesc "Studio helps you define your application domain"
-                <> header "Modelyz Studio"
+                <> header "Bazalt Studio"
             )

@@ -2,7 +2,7 @@ module MessageFlow where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 
@@ -10,7 +10,7 @@ data MessageFlow
     = Requested
     | Processed
     | Error Text
-    deriving (Eq, Generic, Data, Typeable, Ord, Show)
+    deriving (Eq, Generic, Data, Ord, Show)
 
 instance FromJSON MessageFlow where
     parseJSON :: Value -> Parser MessageFlow

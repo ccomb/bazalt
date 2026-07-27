@@ -150,8 +150,8 @@ serverApp msgPath chan stateMV pending_conn = do
         -- SERVER WORKER THREAD (one per client thread)
         -- wait for new messages coming from other microservices through the chan
         -- and send them to the currently connected microservice
-        forkIO
-            $ fix
+        forkIO $
+            fix
                 ( \loop -> do
                     msg <- readChan msChan
                     -- store the name of the client in a thread-local MVar
@@ -162,45 +162,45 @@ serverApp msgPath chan stateMV pending_conn = do
                 )
     -- SERVER MAIN THREAD
     -- handle message coming through websocket from the currently connected microservice
-    WS.withPingThread conn 30 (return ())
-        $ Monad.forever
-        $ do
-            message <- WS.receiveDataMessage conn
-            putStrLn $ "SERVER MAIN THREAD received through websocket:\n" ++ show message
-            case JSON.eitherDecode
-                ( case message of
-                    WS.Text bs _ -> WS.fromLazyByteString bs
-                    WS.Binary bs -> WS.fromLazyByteString bs
-                ) of
-                Right msg -> do
-                    st' <- readMVar stateMV
-                    case payload msg of
-                        InitiatedConnection connection -> do
-                            -- get the name of the connected client
-                            let from = creator msg
-                            _ <- takeMVar clientMV
-                            putMVar clientMV from
-                            putStrLn $ "Connected client: " ++ show from
-                            let remoteUuids = Connection.uuids connection
-                            putStrLn $ "Remote uuids: " ++ show remoteUuids
-                            messages <- readMessages msgPath
-                            putStrLn $ "messages: " ++ show messages
-                            let msgs = filter (\e -> messageId e `notElem` remoteUuids) messages
-                            client <- readMVar clientMV
-                            mapM_ (syncBackMessage conn client) msgs
-                            putStrLn $ "Sent all missing messages to " ++ show from
-                            -- send the InitiatedConnection terminaison to signal the sync is over
-                            (WS.sendTextData conn . JSON.encode)
-                                $ Message
-                                    (Metadata{uuid = uuid $ metadata msg, Metadata.when = when $ metadata msg, Metadata.from = [myself], Metadata.flow = Processed})
-                                    (InitiatedConnection (Connection{lastMessageTime = 0, Connection.uuids = Set.empty}))
-                        _ -> Monad.unless (messageId msg `elem` Main.uuids st') $ do
-                            appendMessage msgPath msg
-                            state <- takeMVar stateMV
-                            putMVar stateMV $! update state msg
-                            writeChan msChan msg
-                            putStrLn "Writing to the chan"
-                Left err -> putStrLn $ "### ERROR ### decoding incoming message:\n" ++ err
+    WS.withPingThread conn 30 (return ()) $
+        Monad.forever $
+            do
+                message <- WS.receiveDataMessage conn
+                putStrLn $ "SERVER MAIN THREAD received through websocket:\n" ++ show message
+                case JSON.eitherDecode
+                    ( case message of
+                        WS.Text bs _ -> WS.fromLazyByteString bs
+                        WS.Binary bs -> WS.fromLazyByteString bs
+                    ) of
+                    Right msg -> do
+                        st' <- readMVar stateMV
+                        case payload msg of
+                            InitiatedConnection connection -> do
+                                -- get the name of the connected client
+                                let from = creator msg
+                                _ <- takeMVar clientMV
+                                putMVar clientMV from
+                                putStrLn $ "Connected client: " ++ show from
+                                let remoteUuids = Connection.uuids connection
+                                putStrLn $ "Remote uuids: " ++ show remoteUuids
+                                messages <- readMessages msgPath
+                                putStrLn $ "messages: " ++ show messages
+                                let msgs = filter (\e -> messageId e `notElem` remoteUuids) messages
+                                client <- readMVar clientMV
+                                mapM_ (syncBackMessage conn client) msgs
+                                putStrLn $ "Sent all missing messages to " ++ show from
+                                -- send the InitiatedConnection terminaison to signal the sync is over
+                                (WS.sendTextData conn . JSON.encode) $
+                                    Message
+                                        (Metadata{uuid = uuid $ metadata msg, Metadata.when = when $ metadata msg, Metadata.from = [myself], Metadata.flow = Processed})
+                                        (InitiatedConnection (Connection{lastMessageTime = 0, Connection.uuids = Set.empty}))
+                            _ -> Monad.unless (messageId msg `elem` Main.uuids st') $ do
+                                appendMessage msgPath msg
+                                state <- takeMVar stateMV
+                                putMVar stateMV $! update state msg
+                                writeChan msChan msg
+                                putStrLn "Writing to the chan"
+                    Left err -> putStrLn $ "### ERROR ### decoding incoming message:\n" ++ err
 
 update :: State -> Message -> State
 update state msg =
@@ -231,7 +231,7 @@ serve (Options storePath listHost listenPort) = do
     putMVar stateMV newState
     putStrLn $ "STATE:\n" ++ show newState
     -- listen for clients
-    putStrLn $ "Modelyz Store, serving from localhost:" ++ show listenPort ++ "/"
+    putStrLn $ "Bazalt Store, serving from localhost:" ++ show listenPort ++ "/"
     WS.runServerWithOptions WS.defaultServerOptions{WS.serverHost = listHost, WS.serverPort = listenPort} (serverApp storePath chan stateMV)
 
 main :: IO ()
@@ -243,5 +243,5 @@ main =
             (options <**> helper)
             ( fullDesc
                 <> progDesc "The central source of all your events"
-                <> header "Modelyz Store"
+                <> header "Bazalt Store"
             )

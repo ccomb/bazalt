@@ -9,8 +9,9 @@ import Data.Aeson qualified as JSON
 import Data.Aeson.Types (Parser)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy (fromStrict, toStrict)
-import Data.Data (Data (toConstr), Typeable)
+import Data.Data (Data (toConstr))
 import Data.List qualified as List
+import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Text.IO qualified as IO (appendFile)
@@ -22,10 +23,10 @@ import MessageFlow (MessageFlow)
 import MessageId (MessageId)
 import Metadata (Metadata, flow, from, uuid, when)
 import Payload (Payload (..))
-import Service (Service)
+import Service (Service (None))
 
 data Message = Message Metadata Payload
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Message where
     parseJSON :: JSON.Value -> Parser Message
@@ -66,7 +67,7 @@ setCreator :: Service -> Message -> Message
 setCreator origin (Message m p) = Message m{from = List.singleton origin} p
 
 creator :: Message -> Service
-creator = head . from . metadata -- maybe reconsider NonEmpty
+creator = fromMaybe None . listToMaybe . from . metadata
 
 addVisited :: Service -> Message -> Message
 addVisited origin (Message m p) = Message m{from = from m ++ [origin]} p
@@ -75,7 +76,7 @@ dropLastVisited :: Message -> Message
 dropLastVisited (Message m p) = Message m{from = reverse $ drop 1 $ reverse $ from m} p
 
 lastVisited :: Message -> Service
-lastVisited = last . from . metadata -- maybe reconsider NonEmpty
+lastVisited = fromMaybe None . listToMaybe . reverse . from . metadata
 
 appendMessage :: FilePath -> Message -> IO ()
 appendMessage f msg = do

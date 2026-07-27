@@ -1,4 +1,4 @@
 #/bin/bash
 
-docker build --target build --cache-from modelyz-build -t modelyz-build .
-docker build --cache-from modelyz-build -t modelyz .
+docker build --target build --cache-from bazalt-build -t bazalt-build .
+docker build --cache-from bazalt-build -t bazalt .

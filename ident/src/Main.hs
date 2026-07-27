@@ -252,5 +252,5 @@ main =
             (options Options.<**> Options.helper)
             ( Options.fullDesc
                 <> Options.progDesc "Ident handles the identification needs"
-                <> Options.header "Modelyz Ident"
+                <> Options.header "Bazalt Ident"
             )

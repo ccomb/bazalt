@@ -1,11 +1,10 @@
 cabal-version:      3.4
-name:               modelyz-studio
+name:               bazalt-studio
 version:            0.18.0.0
-synopsis: Modeling studio for Modelyz
+synopsis: Modeling studio for Bazalt
 -- description:
 -- bug-reports:
-license: AGPL-3.0-or-later
-license-file:        LICENSE
+license:            Apache-2.0
 author:              Christophe Combelles
 maintainer:          ccomb@free.fr
 -- copyright:
@@ -14,20 +13,20 @@ maintainer:          ccomb@free.fr
 
 source-repository head
     type: git
-    location: https://github.com/Modelyz/studio
+    location: https://github.com/ccomb/bazalt
 
 executable studio
     main-is:          Main.hs
     hs-source-dirs:   src
   -- other-extensions:
-    ghc-options: -Wall -O
+    ghc-options: -Wall -O -threaded -rtsopts -with-rtsopts=-N
     build-depends:
         base >= 4.17
         , aeson >= 2.1
         , bytestring
         , containers
         , http-types
-        , modelyz-message
+        , bazalt-message
         , mtl
         , optparse-applicative
         , scientific

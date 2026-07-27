@@ -2,7 +2,7 @@ module Service (Service (..)) where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text qualified as T
 import GHC.Generics (Generic)
 
@@ -25,7 +25,7 @@ data Service
     | Dumb
     | Store
     | Ident
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Service where
     parseJSON :: JSON.Value -> Parser Service

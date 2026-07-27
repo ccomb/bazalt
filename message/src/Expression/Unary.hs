@@ -2,13 +2,13 @@ module Expression.Unary where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import GHC.Generics (Generic)
 
 data Operator
     = Neg
     | Inv
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Operator where
     parseJSON :: JSON.Value -> Parser Operator

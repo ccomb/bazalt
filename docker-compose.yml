@@ -2,7 +2,7 @@ version: '3'
 
 services:
   store:
-    image: rg.fr-par.scw.cloud/prelab/modelyz
+    image: rg.fr-par.scw.cloud/prelab/bazalt
     command: /srv/store/store -h store
     restart: unless-stopped
     ports:
@@ -14,7 +14,7 @@ services:
 
 
   studio:
-    image: rg.fr-par.scw.cloud/prelab/modelyz
+    image: rg.fr-par.scw.cloud/prelab/bazalt
     command: /srv/studio/studio -d /srv/studio -f studio/data/messagestore.txt --store_host store
     restart: unless-stopped
     environment:
@@ -29,7 +29,7 @@ services:
       - caddy_default
 
   ident:
-    image: rg.fr-par.scw.cloud/prelab/modelyz
+    image: rg.fr-par.scw.cloud/prelab/bazalt
     command: /srv/ident/ident --store_host store
     restart: unless-stopped
     depends_on:
@@ -40,7 +40,7 @@ services:
       - caddy_default
 
   dumb:
-    image: rg.fr-par.scw.cloud/prelab/modelyz
+    image: rg.fr-par.scw.cloud/prelab/bazalt
     command: /srv/dumb/dumb --store_host store
     restart: unless-stopped
     depends_on:

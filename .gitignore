@@ -1,0 +1,17 @@
+dist-newstyle/
+build/
+data/
+*~
+.*.un~
+.*.swp
+__pycache__/
+*.pyc
+.env
+cabal.project.local*
+elm-stuff/
+node_modules/
+repl-temp-*
+venv/
+geckodriver.log
+Pipfile.lock
+package-lock.json

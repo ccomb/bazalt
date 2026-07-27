@@ -2,7 +2,7 @@ version: '3'
 
 services:
   store:
-    image: modelyz
+    image: bazalt
     command: /srv/store/store -h store
     ports:
       - "8081:8081"
@@ -10,7 +10,7 @@ services:
       - store:/srv/store/data
 
   studio:
-    image: modelyz
+    image: bazalt
     command: /srv/studio/studio -d studio -f studio/data/messagestore.txt --store_host store --store_port 8081
     environment:
       - WSS=ws://localhost:8080
@@ -22,7 +22,7 @@ services:
       - studio:/srv/studio/data
 
   ident:
-    image: modelyz
+    image: bazalt
     command: /srv/ident/ident --store_host store
     depends_on:
       - store
@@ -30,7 +30,7 @@ services:
       - ident:/srv/ident/data
 
   dumb:
-    image: modelyz
+    image: bazalt
     command: /srv/dumb/dumb --store_host store
     depends_on:
       - store

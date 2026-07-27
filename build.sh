@@ -1,25 +1,16 @@
 #!/bin/bash
 
-OPT_DEVEL='--ghc-options="-Wall"'
-OPT_OPTIMIZE=' -O2 --ghc-options="-Wall" --enable-executable-stripping --enable-library-stripping --enable-executable-static'
-INSTALLDIR=build
-DATADIR=data
-OPT_INSTALL="--installdir=$INSTALLDIR --overwrite-policy=always --install-method=copy"
-
-OPT=$OPT_DEVEL
-
 set -e
+cd "$(dirname "$0")"
+mkdir -p build data
 
-pushd $( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-mkdir -p $INSTALLDIR
-mkdir -p $DATADIR
+if which cabal-cache >/dev/null 2>&1 && [ -f ./dist-newstyle/cache/plan.json ]; then
+    cabal-cache sync-from-archive --threads 4 --archive-uri s3://cabal-store.prelab.fr --host-name-override=s3.fr-par.scw.cloud --host-port-override=443 --host-ssl-override=True --region fr-par
+fi
 
-[ -f ./dist-newstyle/cache/plan.json ] && which cabal-cache && cabal-cache sync-from-archive --threads 4 --archive-uri s3://cabal-store.prelab.fr --host-name-override=s3.fr-par.scw.cloud --host-port-override=443 --host-ssl-override=True --region fr-par
+cabal build all --ghc-options="-Wall"
+cabal install studio store ident dumb --installdir=build --overwrite-policy=always --install-method=copy
 
-    cabal build message $OPT
-    cabal build studio store ident dumb $OPT
-    cabal install studio store ident dumb --installdir=build
-
-which cabal-cache && cabal-cache sync-to-archive --threads 4 --archive-uri s3://cabal-store.prelab.fr --host-name-override=s3.fr-par.scw.cloud --host-port-override=443 --host-ssl-override=True --region fr-par
-
-popd
+if which cabal-cache >/dev/null 2>&1; then
+    cabal-cache sync-to-archive --threads 4 --archive-uri s3://cabal-store.prelab.fr --host-name-override=s3.fr-par.scw.cloud --host-port-override=443 --host-ssl-override=True --region fr-par
+fi

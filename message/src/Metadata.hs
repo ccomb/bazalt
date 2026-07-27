@@ -6,7 +6,7 @@ module Metadata where
 import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
 import Data.Aeson qualified as JSON
 import Data.Aeson.Types (Parser, SumEncoding (..))
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
@@ -19,7 +19,7 @@ data Metadata = Metadata
     , from :: [Service]
     , flow :: MessageFlow
     }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Metadata where
     parseJSON :: JSON.Value -> Parser Metadata

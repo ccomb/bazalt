@@ -2,7 +2,7 @@ module Expression.Binary where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text as T
 import GHC.Generics (Generic)
 
@@ -11,7 +11,7 @@ data Operator
     | Multiply
     | Or {name :: T.Text, desc :: T.Text, choice :: Either String Bool}
     | Otherwise
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Operator where
     parseJSON :: JSON.Value -> Parser Operator

@@ -2,7 +2,7 @@ module Expression where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Expression.Binary as B
 import Expression.Observable (Observable)
 import Expression.Unary as U
@@ -12,7 +12,7 @@ data Expression
     = Leaf Observable
     | Unary {uop :: U.Operator, expr :: Expression}
     | Binary {bop :: B.Operator, expr1 :: Expression, expr2 :: Expression}
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Expression where
     parseJSON :: JSON.Value -> Parser Expression

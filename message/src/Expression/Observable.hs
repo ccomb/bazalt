@@ -2,7 +2,7 @@ module Expression.Observable where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text as T
 import Expression.Deeplink as Deeplink (DeepLink)
 import Expression.ValueSelection (ValueSelection)
@@ -13,7 +13,7 @@ data Observable
     | Variable {name :: T.Text, input :: T.Text}
     | ObsValue ValueSelection
     | ObsLink DeepLink
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Observable where
     parseJSON :: JSON.Value -> Parser Observable

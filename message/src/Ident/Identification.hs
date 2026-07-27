@@ -3,14 +3,14 @@ module Ident.Identification where
 import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
 import Data.Aeson qualified as JSON
 import Data.Aeson.Types (Parser, SumEncoding (..))
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import GHC.Generics (Generic)
 
 data Identification
     = StartsWith String
     | EndsWith String
     | Contains String
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Identification where
     parseJSON :: JSON.Value -> Parser Identification

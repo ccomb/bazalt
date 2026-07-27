@@ -5,7 +5,7 @@ module Scope where
 import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON, withObject, (.:), (.=))
 import Data.Aeson qualified as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable, toConstr)
+import Data.Data (Data, toConstr)
 import Data.Text (Text)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
@@ -32,7 +32,7 @@ data Scope
     | Not Scope -- entities not in the group
     -- the set of items with a specific identification
     | Identified Identification -- entities identified somehow
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Scope where
     parseJSON :: JSON.Value -> Parser Scope

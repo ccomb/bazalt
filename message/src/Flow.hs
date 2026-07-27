@@ -2,7 +2,7 @@ module Flow where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import GHC.Generics (Generic)
 import Resource.Resource (Resource)
 import ResourceType.ResourceType (ResourceType)
@@ -10,7 +10,7 @@ import ResourceType.ResourceType (ResourceType)
 data Flow
     = ResourceFlow Resource
     | ResourceTypeFlow ResourceType
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Flow where
     parseJSON :: JSON.Value -> Parser Flow

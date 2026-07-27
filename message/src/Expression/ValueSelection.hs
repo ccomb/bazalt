@@ -2,7 +2,7 @@ module Expression.ValueSelection where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text qualified as T
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
@@ -11,7 +11,7 @@ import Type (Type)
 data ValueSelection
     = SelectedValue {what :: Type, for :: UUID, name :: T.Text}
     | UndefinedValue
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ValueSelection where
     parseJSON :: JSON.Value -> Parser ValueSelection

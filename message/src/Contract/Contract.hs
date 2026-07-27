@@ -2,7 +2,7 @@ module Contract.Contract where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Type (Type)
@@ -15,7 +15,7 @@ data Contract = Contract
     --    , clauses::
     --    , terms::
     }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Contract where
     parseJSON :: JSON.Value -> Parser Contract

@@ -1,0 +1,7 @@
+# HLint configuration for Bazalt.
+#
+# Run locally with: hlint message store ident dumb studio/back
+#
+# A hygiene pass either *fixes* a hint or *baselines* it here with a one-line
+# reason, when the suggested rewrite conflicts with a stronger rule (code
+# safety, the formatter, or the point of a test).

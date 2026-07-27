@@ -2,7 +2,7 @@ module Ident.IdentifierType where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Ident.Fragment (Fragment)
@@ -16,7 +16,7 @@ data IdentifierType = IdentifierType
     , unique :: Bool
     , mandatory :: Bool
     }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON IdentifierType where
     parseJSON :: JSON.Value -> Parser IdentifierType

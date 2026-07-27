@@ -4,7 +4,7 @@
 module Type where
 
 import Data.Aeson
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import GHC.Generics
 
 data Type
@@ -22,7 +22,7 @@ data Type
     | Contract
     | Process
     | Group
-    deriving (Generic, Data, Typeable, Show, Ord, Eq)
+    deriving (Generic, Data, Show, Ord, Eq)
 
 instance FromJSON Type where
     parseJSON = \case

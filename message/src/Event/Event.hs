@@ -2,7 +2,7 @@ module Event.Event where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
 import Expression (Expression)
@@ -20,7 +20,7 @@ data Event = Event
     , receiver :: UUID
     , flow :: Flow
     }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Event where
     parseJSON :: JSON.Value -> Parser Event

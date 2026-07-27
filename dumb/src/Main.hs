@@ -224,5 +224,5 @@ main =
             (options Options.<**> Options.helper)
             ( Options.fullDesc
                 <> Options.progDesc "Dumb does nothing but returning a Processed msg"
-                <> Options.header "Modelyz Dumb"
+                <> Options.header "Bazalt Dumb"
             )

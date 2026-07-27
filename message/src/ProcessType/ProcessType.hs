@@ -2,7 +2,7 @@ module ProcessType.ProcessType where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.Set (Set)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
@@ -14,7 +14,7 @@ data ProcessType = ProcessType
     , parent :: Maybe UUID
     , eventTypes :: Set UUID
     }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ProcessType where
     parseJSON :: JSON.Value -> Parser ProcessType

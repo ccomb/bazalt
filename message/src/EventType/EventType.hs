@@ -2,7 +2,7 @@ module EventType.EventType where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.UUID (UUID)
 import Expression (Expression)
 import GHC.Generics (Generic)
@@ -19,7 +19,7 @@ data EventType = EventType
     , createResource :: Bool
     , qty :: Expression
     }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON EventType where
     parseJSON :: JSON.Value -> Parser EventType

@@ -11,7 +11,7 @@ import ContractType.ContractType (ContractType)
 import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
 import Data.Aeson qualified as JSON
 import Data.Aeson.Types (Parser, SumEncoding (..))
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.UUID (UUID)
 import Event.Event (Event)
 import EventType.EventType (EventType)
@@ -73,7 +73,7 @@ data Payload
     | Ungrouped GroupLink.Link
     | Reconciled Reconciliation
     | Unreconciled Reconciliation
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Payload where
     parseJSON :: JSON.Value -> Parser Payload

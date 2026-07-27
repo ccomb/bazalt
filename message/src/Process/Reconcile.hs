@@ -2,7 +2,7 @@ module Process.Reconcile where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 
@@ -13,7 +13,7 @@ data Reconciliation = Reconciliation
     , event :: UUID
     , process :: UUID
     }
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Reconciliation where
     parseJSON :: JSON.Value -> Parser Reconciliation

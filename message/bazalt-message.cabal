@@ -1,11 +1,10 @@
 cabal-version:      3.4
-name:               modelyz-message
+name:               bazalt-message
 version:            0.2.0.0
-synopsis:           Message definitions for Modelyz
+synopsis:           Message definitions for Bazalt
 -- description:
-homepage:           https://github.com/Modelyz/message
-license:            AGPL-3.0-or-later
-license-file:       LICENSE
+homepage:           https://github.com/ccomb/bazalt
+license:            Apache-2.0
 author:             Christophe Combelles
 maintainer:         ccomb@free.fr
 -- copyright:
@@ -67,8 +66,8 @@ library
     -- other-modules:
     -- other-extensions:
     build-depends:
-        base ^>=4.17
-        , aeson ^>= 2.1
+        base >=4.17
+        , aeson >= 2.1
         , bytestring
         , containers
         , scientific
@@ -79,7 +78,7 @@ library
     hs-source-dirs:   src
     default-language: GHC2021
 
-test-suite modelyz-message-test
+test-suite bazalt-message-test
     import:           warnings
     default-language: GHC2021
     -- other-modules:
@@ -88,4 +87,4 @@ test-suite modelyz-message-test
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base ^>=4.16.4.0
+        base >=4.16

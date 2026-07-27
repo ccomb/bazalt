@@ -1,11 +1,10 @@
 cabal-version:      3.4
-name:               modelyz-dumb
+name:               bazalt-dumb
 version:            0.2.0.0
-synopsis: Modelyz microservice that does nothing but returning a msg considered as processed
+synopsis: Bazalt microservice that does nothing but returning a msg considered as processed
 -- description:
 -- bug-reports:
-license: AGPL-3.0-or-later
-license-file:        LICENSE
+license:            Apache-2.0
 author:             Christophe Combelles
 maintainer:         ccomb@free.fr
 
@@ -16,17 +15,17 @@ extra-source-files: CHANGELOG.md
 
 source-repository head
     type: git
-    location: https://github.com/Modelyz/dumb
+    location: https://github.com/ccomb/bazalt
 
 executable dumb
     main-is:          Main.hs
     hs-source-dirs:   src
-    ghc-options: -Wall -O2
+    ghc-options: -Wall -O2 -threaded -rtsopts -with-rtsopts=-N
     build-depends:
-        base ^>= 4.17.0.0
-        , aeson ^>= 2.1
+        base >= 4.17
+        , aeson >= 2.1
         , containers
-        , modelyz-message
+        , bazalt-message
         , optparse-applicative
         , time
         , uuid

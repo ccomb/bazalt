@@ -2,7 +2,7 @@ module Expression.HardLink where
 
 import Data.Aeson as JSON
 import Data.Aeson.Types (Parser)
-import Data.Data (Data, Typeable)
+import Data.Data (Data)
 import GHC.Generics (Generic)
 
 data HardLink
@@ -21,7 +21,7 @@ data HardLink
     | ContractTypeLink ContractTypeLink
     | ProcessTypeLink ProcessTypeLink
     | GroupTypeLink GroupTypeLink
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON HardLink where
     parseJSON :: JSON.Value -> Parser HardLink
@@ -36,7 +36,7 @@ data ResourceLink
       ResourceGroup
     | -- ResourceTypes of type Uuid
       ResourceType
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ResourceLink where
     parseJSON :: JSON.Value -> Parser ResourceLink
@@ -52,7 +52,7 @@ data EventLink
     | EventOutflow
     | EventGroup
     | EventType
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON EventLink where
     parseJSON :: JSON.Value -> Parser EventLink
@@ -65,7 +65,7 @@ instance ToJSON EventLink where
 data AgentLink
     = AgentGroup
     | AgentType
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON AgentLink where
     parseJSON :: JSON.Value -> Parser AgentLink
@@ -82,7 +82,7 @@ data CommitmentLink
     | CommitmentOutflow
     | CommitmentGroup
     | CommitmentType
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON CommitmentLink where
     parseJSON :: JSON.Value -> Parser CommitmentLink
@@ -95,7 +95,7 @@ instance ToJSON CommitmentLink where
 data ContractLink
     = ContractGroup
     | ContractType
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ContractLink where
     parseJSON :: JSON.Value -> Parser ContractLink
@@ -108,7 +108,7 @@ instance ToJSON ContractLink where
 data ProcessLink
     = ProcessGroup
     | ProcessType
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ProcessLink where
     parseJSON :: JSON.Value -> Parser ProcessLink
@@ -122,7 +122,7 @@ data GroupLink
     = GroupGroup
     | GroupType
     | ParentGroup
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON GroupLink where
     parseJSON :: JSON.Value -> Parser GroupLink
@@ -135,7 +135,7 @@ instance ToJSON GroupLink where
 data ResourceTypeLink
     = ResourceTypeGroup
     | ResourceTypeParent
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ResourceTypeLink where
     parseJSON :: JSON.Value -> Parser ResourceTypeLink
@@ -152,7 +152,7 @@ data EventTypeLink
     | EventTypeOutflow
     | EventTypeGroup
     | EventTypeParent
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON EventTypeLink where
     parseJSON :: JSON.Value -> Parser EventTypeLink
@@ -165,7 +165,7 @@ instance ToJSON EventTypeLink where
 data AgentTypeLink
     = AgentTypeGroup
     | AgentTypeParent
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON AgentTypeLink where
     parseJSON :: JSON.Value -> Parser AgentTypeLink
@@ -182,7 +182,7 @@ data CommitmentTypeLink
     | CommitmentTypeOutflow
     | CommitmentTypeGroup
     | CommitmentTypeParent
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON CommitmentTypeLink where
     parseJSON :: JSON.Value -> Parser CommitmentTypeLink
@@ -195,7 +195,7 @@ instance ToJSON CommitmentTypeLink where
 data ContractTypeLink
     = ContractTypeGroup
     | ContractTypeParent
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ContractTypeLink where
     parseJSON :: JSON.Value -> Parser ContractTypeLink
@@ -208,7 +208,7 @@ instance ToJSON ContractTypeLink where
 data ProcessTypeLink
     = ProcessTypeGroup
     | ProcessTypeParent
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ProcessTypeLink where
     parseJSON :: JSON.Value -> Parser ProcessTypeLink
@@ -221,7 +221,7 @@ instance ToJSON ProcessTypeLink where
 data GroupTypeLink
     = GroupTypeGroup
     | GroupTypeParent
-    deriving (Generic, Data, Typeable, Show, Eq, Ord)
+    deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON GroupTypeLink where
     parseJSON :: JSON.Value -> Parser GroupTypeLink

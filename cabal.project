@@ -1,4 +1,5 @@
 jobs: $ncpus
+with-compiler: ghc-9.12.4
 
 packages:
     message
