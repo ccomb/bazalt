@@ -14,6 +14,7 @@ import Configuration.Zone.Fragment qualified as Zone
 import Connection (Connection)
 import Contract.Contract (Contract)
 import ContractType.ContractType (ContractType)
+import Data.Bits ((.&.), (.|.))
 import Data.Ratio ((%))
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -49,7 +50,7 @@ import Resource.Resource (Resource)
 import ResourceType.ResourceType (ResourceType)
 import Scope (Scope (..))
 import Service (Service)
-import Test.QuickCheck
+import Test.QuickCheck hiding ((.&.))
 import Tree (TreeType)
 import Type (Type)
 import Value.Value (Value)
@@ -57,8 +58,13 @@ import Value.ValueType (ValueType)
 
 -- Primitives, at the resolution of the domain.
 
+{- | Version 4 UUIDs, the only ones Bazalt creates (and the only ones the
+Elm side accepts).
+-}
 instance Arbitrary UUID where
-    arbitrary = UUID.fromWords <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
+    arbitrary = v4 <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
+      where
+        v4 a b c = UUID.fromWords a ((b .&. 0xFFFF0FFF) .|. 0x00004000) ((c .&. 0x3FFFFFFF) .|. 0x80000000)
 
 instance Arbitrary Text where
     arbitrary = T.pack <$> arbitrary

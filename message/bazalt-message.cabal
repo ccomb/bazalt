@@ -81,6 +81,23 @@ library
     hs-source-dirs:   src
     default-language: GHC2021
 
+-- Random values of every message type, shared by the property tests and
+-- the fixtures of the Haskell to Elm round trip.
+library arbitrary
+    import:           warnings
+    visibility:       public
+    exposed-modules:  Arbitrary
+    build-depends:
+        base >=4.16
+        , bazalt-message
+        , generic-random >=1.5
+        , QuickCheck
+        , text
+        , time
+        , uuid
+    hs-source-dirs:   arbitrary
+    default-language: GHC2021
+
 test-suite bazalt-message-test
     import:           warnings
     default-language: GHC2021
@@ -90,7 +107,7 @@ test-suite bazalt-message-test
     hs-source-dirs:   test
     main-is:          Main.hs
     other-modules:
-        Arbitrary
+        CrossSpec
         , JournalSpec
         , RoundTripSpec
     build-tool-depends: hspec-discover:hspec-discover
@@ -98,10 +115,10 @@ test-suite bazalt-message-test
         base >=4.16
         , aeson
         , bazalt-message
+        , bazalt-message:arbitrary
         , bytestring
         , filepath
         , temporary
-        , generic-random >=1.5
         , hspec
         , QuickCheck
         , text

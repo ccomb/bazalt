@@ -42,3 +42,16 @@ executable bazalt-gen-elm
         , unordered-containers
     hs-source-dirs:   app
     default-language: GHC2021
+
+executable bazalt-fixtures
+    import:           warnings
+    main-is:          Fixtures.hs
+    build-depends:
+        base >=4.17
+        , aeson
+        , bazalt-message
+        , bazalt-message:arbitrary
+        , bytestring
+        , QuickCheck
+    hs-source-dirs:   app
+    default-language: GHC2021
