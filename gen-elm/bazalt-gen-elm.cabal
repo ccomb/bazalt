@@ -1,0 +1,44 @@
+cabal-version:      3.4
+name:               bazalt-gen-elm
+version:            0.1.0.0
+synopsis:           Generates the Elm ontology from the Haskell message types
+license:            Apache-2.0
+author:             Christophe Combelles
+maintainer:         ccomb@free.fr
+build-type:         Simple
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:  Ontology.Elm
+    build-depends:
+        base >=4.17
+        , aeson
+        , bazalt-message
+        , containers
+        , elm-syntax ^>=0.3.3
+        , generics-sop
+        , haskell-to-elm ^>=0.3.2
+        , text
+        , time
+        , uuid
+    hs-source-dirs:   src
+    default-language: GHC2021
+
+executable bazalt-gen-elm
+    import:           warnings
+    main-is:          Main.hs
+    build-depends:
+        base >=4.17
+        , bazalt-gen-elm
+        , directory
+        , elm-syntax
+        , filepath
+        , prettyprinter
+        , process
+        , text
+        , unordered-containers
+    hs-source-dirs:   app
+    default-language: GHC2021
