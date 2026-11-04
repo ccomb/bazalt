@@ -9,8 +9,8 @@ import Json.Decode.Pipeline
 import Json.Encode
 import Ontology.Configuration.Zone
 import Ontology.Configuration.Zone.Fragment
+import Ontology.Hierarchy.Type
 import Ontology.Scope
-import Ontology.Type
 import Prng.Uuid
 
 
@@ -21,7 +21,7 @@ type Configuration
         , scope : Ontology.Scope.Scope
         }
     | MenuDisplay
-        { what : Ontology.Type.Type
+        { what : Ontology.Hierarchy.Type.Type
         , uuid : Prng.Uuid.Uuid
         , isMenu : Bool
         }
@@ -41,7 +41,7 @@ configurationEncoder a =
         MenuDisplay b ->
             Json.Encode.object
                 [ ( "type", Json.Encode.string "MenuDisplay" )
-                , ( "what", Ontology.Type.typeEncoder b.what )
+                , ( "what", Ontology.Hierarchy.Type.typeEncoder b.what )
                 , ( "uuid", Prng.Uuid.encode b.uuid )
                 , ( "isMenu", Json.Encode.bool b.isMenu )
                 ]
@@ -76,7 +76,7 @@ configurationDecoder =
                                     , isMenu = d
                                     }
                                 )
-                                |> Json.Decode.Pipeline.required "what" Ontology.Type.typeDecoder
+                                |> Json.Decode.Pipeline.required "what" Ontology.Hierarchy.Type.typeDecoder
                                 |> Json.Decode.Pipeline.required "uuid" Prng.Uuid.decoder
                                 |> Json.Decode.Pipeline.required "isMenu" Json.Decode.bool
                             )

@@ -34,7 +34,7 @@ randoms = [sample arbitrary seed (seed `mod` 30) | seed <- [1 .. 2000]]
 edgeCases :: [Message]
 edgeCases =
     [ withLoad (DefinedGroup (sample arbitrary 1 5){Group.scope = nest 50 (`And` Empty) Anything})
-    , withLoad (AddedValue (sample arbitrary 2 5){Value.expr = nest 50 (Unary Unary.Neg) (Leaf (Constant 1))})
+    , withLoad (AddedValue (sample arbitrary 2 5){Value.expr = nest 50 (Unary Unary.Neg) (Leaf (Constant "1"))})
     , withMeta (\m -> m{Metadata.when = 1695927356.951})
     , withMeta (\m -> m{Metadata.flow = Error "raison"})
     ]

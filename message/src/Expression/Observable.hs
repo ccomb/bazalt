@@ -9,7 +9,7 @@ import GHC.Generics (Generic)
 import Json (taggedOptions)
 
 data Observable
-    = Constant Rational
+    = Constant T.Text
     | Variable {name :: T.Text, input :: T.Text}
     | ObsValue ValueSelection
     | ObsLink DeepLink

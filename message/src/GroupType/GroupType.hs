@@ -6,10 +6,10 @@ import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Json (taggedOptions)
 import Tree qualified
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data GroupType = GroupType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     , unique :: Bool

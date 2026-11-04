@@ -5,119 +5,46 @@ module Ontology.Type exposing
     )
 
 import Json.Decode
+import Json.Decode.Pipeline
 import Json.Encode
+import Ontology.Hierarchy.Type
+import Ontology.Typed.Type
 
 
 type Type
-    = ResourceType
-    | EventType
-    | AgentType
-    | CommitmentType
-    | ContractType
-    | ProcessType
-    | GroupType
-    | Resource
-    | Event
-    | Agent
-    | Commitment
-    | Contract
-    | Process
-    | Group
+    = TType Ontology.Typed.Type.Type
+    | HType Ontology.Hierarchy.Type.Type
 
 
 typeEncoder : Type -> Json.Encode.Value
 typeEncoder a =
     case a of
-        ResourceType ->
-            Json.Encode.string "ResourceType"
+        TType b ->
+            Json.Encode.object
+                [ ( "type", Json.Encode.string "TType" )
+                , ( "value", Ontology.Typed.Type.typeEncoder b )
+                ]
 
-        EventType ->
-            Json.Encode.string "EventType"
-
-        AgentType ->
-            Json.Encode.string "AgentType"
-
-        CommitmentType ->
-            Json.Encode.string "CommitmentType"
-
-        ContractType ->
-            Json.Encode.string "ContractType"
-
-        ProcessType ->
-            Json.Encode.string "ProcessType"
-
-        GroupType ->
-            Json.Encode.string "GroupType"
-
-        Resource ->
-            Json.Encode.string "Resource"
-
-        Event ->
-            Json.Encode.string "Event"
-
-        Agent ->
-            Json.Encode.string "Agent"
-
-        Commitment ->
-            Json.Encode.string "Commitment"
-
-        Contract ->
-            Json.Encode.string "Contract"
-
-        Process ->
-            Json.Encode.string "Process"
-
-        Group ->
-            Json.Encode.string "Group"
+        HType b ->
+            Json.Encode.object
+                [ ( "type", Json.Encode.string "HType" )
+                , ( "value", Ontology.Hierarchy.Type.typeEncoder b )
+                ]
 
 
 typeDecoder : Json.Decode.Decoder Type
 typeDecoder =
-    Json.Decode.string
+    Json.Decode.field "type" Json.Decode.string
         |> Json.Decode.andThen
             (\a ->
                 case a of
-                    "ResourceType" ->
-                        Json.Decode.succeed ResourceType
+                    "TType" ->
+                        Json.Decode.succeed TType
+                            |> Json.Decode.Pipeline.required "value" Ontology.Typed.Type.typeDecoder
 
-                    "EventType" ->
-                        Json.Decode.succeed EventType
-
-                    "AgentType" ->
-                        Json.Decode.succeed AgentType
-
-                    "CommitmentType" ->
-                        Json.Decode.succeed CommitmentType
-
-                    "ContractType" ->
-                        Json.Decode.succeed ContractType
-
-                    "ProcessType" ->
-                        Json.Decode.succeed ProcessType
-
-                    "GroupType" ->
-                        Json.Decode.succeed GroupType
-
-                    "Resource" ->
-                        Json.Decode.succeed Resource
-
-                    "Event" ->
-                        Json.Decode.succeed Event
-
-                    "Agent" ->
-                        Json.Decode.succeed Agent
-
-                    "Commitment" ->
-                        Json.Decode.succeed Commitment
-
-                    "Contract" ->
-                        Json.Decode.succeed Contract
-
-                    "Process" ->
-                        Json.Decode.succeed Process
-
-                    "Group" ->
-                        Json.Decode.succeed Group
+                    "HType" ->
+                        Json.Decode.succeed HType
+                            |> Json.Decode.Pipeline.required "value" Ontology.Hierarchy.Type.typeDecoder
 
                     _ ->
                         Json.Decode.fail "No matching constructor"

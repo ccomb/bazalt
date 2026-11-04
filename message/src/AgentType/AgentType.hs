@@ -5,10 +5,10 @@ import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Json (taggedOptions)
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data AgentType = AgentType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     }

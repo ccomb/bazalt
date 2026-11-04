@@ -7,10 +7,10 @@ import Expression (Expression)
 import GHC.Generics (Generic)
 import Json (taggedOptions)
 import Scope (Scope)
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data CommitmentType = CommitmentType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     , providers :: Scope

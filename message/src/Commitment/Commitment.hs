@@ -8,10 +8,10 @@ import Expression (Expression)
 import Flow (Flow)
 import GHC.Generics (Generic)
 import Json (taggedOptions)
-import Type (Type)
+import Typed.Type qualified as TType
 
 data Commitment = Commitment
-    { what :: Type
+    { what :: TType.Type
     , uuid :: UUID
     , when :: POSIXTime
     , qty :: Expression

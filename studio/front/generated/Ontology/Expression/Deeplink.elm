@@ -13,11 +13,8 @@ import Ontology.Scope
 
 type DeepLink
     = Null
-    | Link
-        { hardlink : Ontology.Expression.HardLink.HardLink
-        , deeplink : DeepLink
-        }
-    | EndPoint { scope : Ontology.Scope.Scope, name : String }
+    | Link Ontology.Expression.HardLink.HardLink DeepLink
+    | EndPoint Ontology.Scope.Scope String
 
 
 deepLinkEncoder : DeepLink -> Json.Encode.Value
@@ -26,18 +23,26 @@ deepLinkEncoder a =
         Null ->
             Json.Encode.object [ ( "type", Json.Encode.string "Null" ) ]
 
-        Link b ->
+        Link b c ->
             Json.Encode.object
                 [ ( "type", Json.Encode.string "Link" )
-                , ( "hardlink", Ontology.Expression.HardLink.hardLinkEncoder b.hardlink )
-                , ( "deeplink", deepLinkEncoder b.deeplink )
+                , ( "value"
+                  , Json.Encode.list identity
+                        [ Ontology.Expression.HardLink.hardLinkEncoder b
+                        , deepLinkEncoder c
+                        ]
+                  )
                 ]
 
-        EndPoint b ->
+        EndPoint b c ->
             Json.Encode.object
                 [ ( "type", Json.Encode.string "EndPoint" )
-                , ( "scope", Ontology.Scope.scopeEncoder b.scope )
-                , ( "name", Json.Encode.string b.name )
+                , ( "value"
+                  , Json.Encode.list identity
+                        [ Ontology.Scope.scopeEncoder b
+                        , Json.Encode.string c
+                        ]
+                  )
                 ]
 
 
@@ -51,27 +56,17 @@ deepLinkDecoder =
                         Json.Decode.succeed Null
 
                     "Link" ->
-                        Json.Decode.map Link
-                            (Json.Decode.succeed
-                                (\b c ->
-                                    { hardlink = b
-                                    , deeplink = c
-                                    }
-                                )
-                                |> Json.Decode.Pipeline.required "hardlink" Ontology.Expression.HardLink.hardLinkDecoder
-                                |> Json.Decode.Pipeline.required "deeplink" deepLinkDecoder
+                        Json.Decode.field "value"
+                            (Json.Decode.succeed Link
+                                |> Json.Decode.Pipeline.custom (Json.Decode.index 0 Ontology.Expression.HardLink.hardLinkDecoder)
+                                |> Json.Decode.Pipeline.custom (Json.Decode.index 1 deepLinkDecoder)
                             )
 
                     "EndPoint" ->
-                        Json.Decode.map EndPoint
-                            (Json.Decode.succeed
-                                (\b c ->
-                                    { scope = b
-                                    , name = c
-                                    }
-                                )
-                                |> Json.Decode.Pipeline.required "scope" Ontology.Scope.scopeDecoder
-                                |> Json.Decode.Pipeline.required "name" Json.Decode.string
+                        Json.Decode.field "value"
+                            (Json.Decode.succeed EndPoint
+                                |> Json.Decode.Pipeline.custom (Json.Decode.index 0 Ontology.Scope.scopeDecoder)
+                                |> Json.Decode.Pipeline.custom (Json.Decode.index 1 Json.Decode.string)
                             )
 
                     _ ->

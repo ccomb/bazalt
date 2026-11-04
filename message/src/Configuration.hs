@@ -9,12 +9,12 @@ import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Scope (Scope)
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data Configuration
     = -- the list of identifier types to display on each zone
       ZoneDisplay {zone :: Zone, fragments :: [Fragment], scope :: Scope}
-    | MenuDisplay {what :: Type, uuid :: UUID, isMenu :: Bool}
+    | MenuDisplay {what :: HType.Type, uuid :: UUID, isMenu :: Bool}
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Configuration where

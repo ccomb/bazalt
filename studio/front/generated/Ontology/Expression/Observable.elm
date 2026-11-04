@@ -9,11 +9,10 @@ import Json.Decode.Pipeline
 import Json.Encode
 import Ontology.Expression.Deeplink
 import Ontology.Expression.ValueSelection
-import Ontology.Prim
 
 
 type Observable
-    = Constant Ontology.Prim.Rational
+    = Constant String
     | Variable { name : String, input : String }
     | ObsValue Ontology.Expression.ValueSelection.ValueSelection
     | ObsLink Ontology.Expression.Deeplink.DeepLink
@@ -25,7 +24,7 @@ observableEncoder a =
         Constant b ->
             Json.Encode.object
                 [ ( "type", Json.Encode.string "Constant" )
-                , ( "value", Ontology.Prim.rationalEncoder b )
+                , ( "value", Json.Encode.string b )
                 ]
 
         Variable b ->
@@ -56,7 +55,7 @@ observableDecoder =
                 case a of
                     "Constant" ->
                         Json.Decode.succeed Constant
-                            |> Json.Decode.Pipeline.required "value" Ontology.Prim.rationalDecoder
+                            |> Json.Decode.Pipeline.required "value" Json.Decode.string
 
                     "Variable" ->
                         Json.Decode.map Variable

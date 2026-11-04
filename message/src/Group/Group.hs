@@ -6,10 +6,10 @@ import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Json (taggedOptions)
 import Scope (Scope)
-import Type (Type)
+import Typed.Type qualified as TType
 
 data Group = Group
-    { what :: Type
+    { what :: TType.Type
     , uuid :: UUID
     , type_ :: UUID
     , parent :: Maybe UUID

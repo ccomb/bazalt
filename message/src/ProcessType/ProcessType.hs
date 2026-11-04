@@ -6,10 +6,10 @@ import Data.Set (Set)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Json (taggedOptions)
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data ProcessType = ProcessType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     , eventTypes :: Set UUID

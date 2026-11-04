@@ -47,6 +47,7 @@ import Generics.SOP qualified as SOP
 import Group.Group qualified
 import Group.Link qualified
 import GroupType.GroupType qualified
+import Hierarchy.Type qualified
 import Ident.Fragment qualified
 import Ident.Identification qualified
 import Ident.Identifier qualified
@@ -71,6 +72,7 @@ import Scope qualified
 import Service qualified
 import Tree qualified
 import Type qualified
+import Typed.Type qualified
 import Value.Value qualified
 import Value.ValueType qualified
 
@@ -135,6 +137,8 @@ definitions =
             , jsonDefinitions @Service.Service
             , jsonDefinitions @Tree.TreeType
             , jsonDefinitions @Type.Type
+            , jsonDefinitions @Typed.Type.Type
+            , jsonDefinitions @Hierarchy.Type.Type
             , jsonDefinitions @Value.Value.Value
             , jsonDefinitions @Value.ValueType.ValueType
             ]
@@ -320,6 +324,10 @@ deriving anyclass instance SOP.Generic Tree.TreeType
 deriving anyclass instance SOP.HasDatatypeInfo Tree.TreeType
 deriving anyclass instance SOP.Generic Type.Type
 deriving anyclass instance SOP.HasDatatypeInfo Type.Type
+deriving anyclass instance SOP.Generic Typed.Type.Type
+deriving anyclass instance SOP.HasDatatypeInfo Typed.Type.Type
+deriving anyclass instance SOP.Generic Hierarchy.Type.Type
+deriving anyclass instance SOP.HasDatatypeInfo Hierarchy.Type.Type
 deriving anyclass instance SOP.Generic Value.Value.Value
 deriving anyclass instance SOP.HasDatatypeInfo Value.Value.Value
 deriving anyclass instance SOP.Generic Value.ValueType.ValueType
@@ -490,6 +498,12 @@ deriving via Tagged Tree.TreeType instance HasElmEncoder Aeson.Value Tree.TreeTy
 deriving via Tagged Type.Type instance HasElmType Type.Type
 deriving via Tagged Type.Type instance HasElmDecoder Aeson.Value Type.Type
 deriving via Tagged Type.Type instance HasElmEncoder Aeson.Value Type.Type
+deriving via Tagged Typed.Type.Type instance HasElmType Typed.Type.Type
+deriving via Tagged Typed.Type.Type instance HasElmDecoder Aeson.Value Typed.Type.Type
+deriving via Tagged Typed.Type.Type instance HasElmEncoder Aeson.Value Typed.Type.Type
+deriving via Tagged Hierarchy.Type.Type instance HasElmType Hierarchy.Type.Type
+deriving via Tagged Hierarchy.Type.Type instance HasElmDecoder Aeson.Value Hierarchy.Type.Type
+deriving via Tagged Hierarchy.Type.Type instance HasElmEncoder Aeson.Value Hierarchy.Type.Type
 deriving via Tagged Value.Value.Value instance HasElmType Value.Value.Value
 deriving via Tagged Value.Value.Value instance HasElmDecoder Aeson.Value Value.Value.Value
 deriving via Tagged Value.Value.Value instance HasElmEncoder Aeson.Value Value.Value.Value

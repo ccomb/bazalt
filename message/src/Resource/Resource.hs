@@ -5,10 +5,10 @@ import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Json (taggedOptions)
-import Type (Type)
+import Typed.Type qualified as TType
 
 data Resource = Resource
-    { what :: Type
+    { what :: TType.Type
     , uuid :: UUID
     , type_ :: UUID
     , qty :: Rational

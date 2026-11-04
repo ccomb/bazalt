@@ -35,6 +35,7 @@ import Generic.Random (genericArbitraryU)
 import Group.Group (Group)
 import Group.Link qualified as GroupLink
 import GroupType.GroupType (GroupType)
+import Hierarchy.Type qualified as HType
 import Ident.Fragment qualified as Ident
 import Ident.Identification (Identification)
 import Ident.Identifier (Identifier)
@@ -53,6 +54,7 @@ import Service (Service)
 import Test.QuickCheck hiding ((.&.))
 import Tree (TreeType)
 import Type (Type)
+import Typed.Type qualified as TType
 import Value.Value (Value)
 import Value.ValueType (ValueType)
 
@@ -168,6 +170,10 @@ instance Arbitrary ResourceTypeLink where arbitrary = genericArbitraryU
 instance Arbitrary Service where arbitrary = genericArbitraryU
 instance Arbitrary TreeType where arbitrary = genericArbitraryU
 instance Arbitrary Type where arbitrary = genericArbitraryU
+
+instance Arbitrary TType.Type where arbitrary = genericArbitraryU
+
+instance Arbitrary HType.Type where arbitrary = genericArbitraryU
 instance Arbitrary U.Operator where arbitrary = genericArbitraryU
 instance Arbitrary Value where arbitrary = genericArbitraryU
 instance Arbitrary ValueSelection where arbitrary = genericArbitraryU

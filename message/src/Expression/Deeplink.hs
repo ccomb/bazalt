@@ -10,10 +10,10 @@ import Scope (Scope)
 
 data DeepLink
     = Null
-    | Link {hardlink :: HardLink, deeplink :: DeepLink}
+    | Link HardLink DeepLink
     | -- the endpoint corresponds to a ValueType
       -- the EndPoint scope is the restriction given by the last hardlink destination
-      EndPoint {scope :: Scope, name :: Text}
+      EndPoint Scope Text
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON DeepLink where

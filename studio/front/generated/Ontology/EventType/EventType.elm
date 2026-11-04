@@ -9,13 +9,13 @@ import Json.Decode.Pipeline
 import Json.Encode
 import Maybe.Extra
 import Ontology.Expression
+import Ontology.Hierarchy.Type
 import Ontology.Scope
-import Ontology.Type
 import Prng.Uuid
 
 
 type alias EventType =
-    { what : Ontology.Type.Type
+    { what : Ontology.Hierarchy.Type.Type
     , uuid : Prng.Uuid.Uuid
     , parent : Maybe Prng.Uuid.Uuid
     , providers : Ontology.Scope.Scope
@@ -29,7 +29,7 @@ type alias EventType =
 eventTypeEncoder : EventType -> Json.Encode.Value
 eventTypeEncoder a =
     Json.Encode.object
-        [ ( "what", Ontology.Type.typeEncoder a.what )
+        [ ( "what", Ontology.Hierarchy.Type.typeEncoder a.what )
         , ( "uuid", Prng.Uuid.encode a.uuid )
         , ( "parent", Maybe.Extra.unwrap Json.Encode.null Prng.Uuid.encode a.parent )
         , ( "providers", Ontology.Scope.scopeEncoder a.providers )
@@ -43,7 +43,7 @@ eventTypeEncoder a =
 eventTypeDecoder : Json.Decode.Decoder EventType
 eventTypeDecoder =
     Json.Decode.succeed EventType
-        |> Json.Decode.Pipeline.required "what" Ontology.Type.typeDecoder
+        |> Json.Decode.Pipeline.required "what" Ontology.Hierarchy.Type.typeDecoder
         |> Json.Decode.Pipeline.required "uuid" Prng.Uuid.decoder
         |> Json.Decode.Pipeline.required "parent" (Json.Decode.nullable Prng.Uuid.decoder)
         |> Json.Decode.Pipeline.required "providers" Ontology.Scope.scopeDecoder
