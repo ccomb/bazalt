@@ -7,3 +7,5 @@ packages:
     store
     ident
     dumb
+
+tests: True

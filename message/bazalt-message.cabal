@@ -86,5 +86,17 @@ test-suite bazalt-message-test
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
+    other-modules:
+        Arbitrary
+        , RoundTripSpec
+    build-tool-depends: hspec-discover:hspec-discover
     build-depends:
         base >=4.16
+        , aeson
+        , bazalt-message
+        , generic-random >=1.5
+        , hspec
+        , QuickCheck
+        , text
+        , time
+        , uuid
