@@ -236,7 +236,7 @@ init s f =
             , identifiers = getIdentifiers s.state (Type.TType TType.Event) newUuid (Maybe.map .uuid met) True
             , resIdentifiers = getIdentifiers s.state (Type.TType TType.Resource) newResUuid mrt True
             , values = getValues s.state.types s.state.valueTypes s.state.values (Type.TType TType.Event) newUuid (Maybe.map .uuid met) True
-            , resValues = getValues s.state.types s.state.valueTypes s.state.values (Type.TType TType.Resource) newUuid mrt True
+            , resValues = getValues s.state.types s.state.valueTypes s.state.values (Type.TType TType.Resource) newResUuid mrt True
             , gsubmodel = initgroups
             , resgsubmodel = initgroups
             , warning = ""
@@ -461,11 +461,18 @@ update s msg model =
                     ( model
                     , Effect.batch
                         [ Shared.dispatchMany s
-                            ((Payload.AddedEvent e :: List.map Payload.AddedResource (Maybe.Extra.toList created))
-                                ++ List.map Payload.AddedIdentifier (Dict.values model.identifiers)
-                                ++ List.map Payload.AddedIdentifier (Dict.values model.resIdentifiers)
+                            (Payload.AddedEvent e
+                                :: List.map Payload.AddedIdentifier (Dict.values model.identifiers)
                                 ++ List.map Payload.AddedValue (Dict.values model.values)
-                                ++ List.map Payload.AddedValue (Dict.values model.resValues)
+                                -- the identifiers and values of the resource exist only with the resource created here
+                                ++ (Maybe.Extra.toList created
+                                        |> List.concatMap
+                                            (\r ->
+                                                Payload.AddedResource r
+                                                    :: List.map Payload.AddedIdentifier (Dict.values model.resIdentifiers)
+                                                    ++ List.map Payload.AddedValue (Dict.values model.resValues)
+                                            )
+                                   )
                                 ++ List.map (\uuid -> Payload.Grouped (Link (Type.TType TType.Event) e.uuid uuid)) (Dict.values <| Group.Input.added model.gsubmodel)
                                 ++ List.map (\uuid -> Payload.Ungrouped (Link (Type.TType TType.Event) e.uuid uuid)) (Dict.values <| Group.Input.removed model.gsubmodel)
                                 ++ List.map (\uuid -> Payload.Grouped (Link (Type.TType TType.Resource) (Flow.uuidOf e.flow) uuid)) (Dict.values <| Group.Input.added model.resgsubmodel)
@@ -545,10 +552,11 @@ validate s model =
             checkMaybe model.qty "The quantity is invalid"
 
         created =
-            if Maybe.map .createResource model.eventType == Just True then
+            -- an edited event keeps the resource it created, found below as an existing one
+            if model.isNew && Maybe.map .createResource model.eventType == Just True then
                 Result.map2 (Resource TType.Resource model.resUuid)
                     (Result.fromMaybe "You must select a Resource Type" model.resourceType)
-                    (qty |> Result.andThen (Eval.exeval s { context = ( Type.TType TType.Event, model.uuid ) } s.values))
+                    (qty |> Result.andThen (Eval.exeval s { context = ( Type.TType TType.Event, model.uuid ) } (Dict.union model.values s.values)))
                     |> Result.map Just
 
             else
