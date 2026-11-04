@@ -28,8 +28,9 @@ producteur indien, un embouteilleur client. Association : un adhérent. Page 33.
 fournit et un agent qui reçoit. État : fait.
 
 **Stockflow** (inflow / outflow). Lien entre un événement et la ressource
-qu'il augmente (inflow) ou diminue (outflow). Page 21. État : partiel, seul
-un flux par événement.
+qu'il augmente (inflow) ou diminue (outflow). Page 21. Le sens n'est pas
+enregistré : il se déduit du fournisseur et du receveur, pour l'agent qui
+regarde (ADR 0015). État : partiel, seul un flux par événement.
 
 **Exchange** (échange). Processus où l'entreprise donne des ressources contre
 d'autres. Importateur : vendre de la purée contre des dollars. Page 15. État : absent.
