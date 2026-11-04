@@ -14,7 +14,7 @@ import Data.Text qualified as T (Text, append, split, unpack)
 import Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import Data.Time.Clock.POSIX
 import Data.UUID.V4 qualified as UUID (nextRandom)
-import Message (Message (..), addVisited, appendMessage, creator, getFlow, lastVisited, messageId, metadata, payload, readMessages)
+import Message (Message (..), addVisited, appendMessage, creator, getFlow, lastVisited, loadJournal, messageId, metadata, payload)
 import MessageFlow (MessageFlow (..))
 import MessageId (MessageId)
 import Metadata (Metadata (..))
@@ -324,7 +324,7 @@ serve (Options d host port msgPath storeHost storePort) = do
     chan <- newChan -- main channel, that will be duplicated once for the browsers, and one for the store
     -- Reconstruct the state
     putStrLn "Reconstructing the State..."
-    msgs <- readMessages msgPath
+    msgs <- loadJournal msgPath
     msgsMV <- newMVar msgs
     stateMV <- newMVar emptyState -- shared application state
     state <- takeMVar stateMV

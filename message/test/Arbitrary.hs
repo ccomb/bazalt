@@ -31,6 +31,7 @@ import Expression.Observable (Observable)
 import Expression.Unary qualified as U
 import Expression.ValueSelection (ValueSelection)
 import Flow (Flow)
+import Generic.Random (genericArbitraryU)
 import Group.Group (Group)
 import Group.Link qualified as GroupLink
 import GroupType.GroupType (GroupType)
@@ -50,7 +51,6 @@ import ResourceType.ResourceType (ResourceType)
 import Scope (Scope (..))
 import Service (Service)
 import Test.QuickCheck
-import Generic.Random (genericArbitraryU)
 import Tree (TreeType)
 import Type (Type)
 import Value.Value (Value)

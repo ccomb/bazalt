@@ -4,10 +4,10 @@ module RoundTripSpec (spec) where
 
 import Arbitrary ()
 import Data.Aeson (decode, encode)
+import Expression (Expression)
 import Message (Message)
 import MessageFlow (MessageFlow (..))
 import Payload (Payload)
-import Expression (Expression)
 import Scope (Scope (..))
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.Hspec.QuickCheck (prop)

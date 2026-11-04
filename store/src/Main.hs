@@ -20,7 +20,7 @@ import Data.Aeson qualified as JSON
 import Data.List ()
 import Data.Map.Strict as Map (Map, delete, empty, insert)
 import Data.Set as Set (Set, empty, insert)
-import Message (Message (..), addVisited, appendMessage, creator, getFlow, messageId, metadata, payload, readMessages)
+import Message (Message (..), addVisited, appendMessage, creator, getFlow, loadJournal, messageId, metadata, payload)
 import MessageFlow (MessageFlow (..))
 import MessageId (MessageId)
 import Metadata (Metadata (Metadata), flow, from, uuid, when)
@@ -183,7 +183,7 @@ serverApp msgPath chan stateMV pending_conn = do
                                 putStrLn $ "Connected client: " ++ show from
                                 let remoteUuids = Connection.uuids connection
                                 putStrLn $ "Remote uuids: " ++ show remoteUuids
-                                messages <- readMessages msgPath
+                                messages <- loadJournal msgPath
                                 putStrLn $ "messages: " ++ show messages
                                 let msgs = filter (\e -> messageId e `notElem` remoteUuids) messages
                                 client <- readMVar clientMV
@@ -225,7 +225,7 @@ serve (Options storePath listHost listenPort) = do
     chan <- newChan
     -- Reconstruct the state
     putStrLn "Reconstructing the State..."
-    msgs <- readMessages storePath
+    msgs <- loadJournal storePath
     state <- takeMVar stateMV
     let newState = foldl update state msgs -- TODO foldr or strict foldl ?
     putMVar stateMV newState
