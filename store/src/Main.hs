@@ -39,6 +39,10 @@ type Port = Int
 data State = State
     { pending :: Map MessageId Message
     , uuids :: Set MessageId
+    , journal :: [Message]
+    {- ^ every message of the journal file, newest first: a connecting client
+    is synced from here, never from the file another thread is appending to
+    -}
     }
     deriving (Show)
 
@@ -48,7 +52,7 @@ myself :: Service
 myself = Store
 
 emptyState :: State
-emptyState = State{pending = Map.empty, Main.uuids = Set.empty}
+emptyState = State{pending = Map.empty, Main.uuids = Set.empty, journal = []}
 
 options :: Parser Options
 options =
@@ -183,9 +187,7 @@ serverApp msgPath chan stateMV pending_conn = do
                                 putStrLn $ "Connected client: " ++ show from
                                 let remoteUuids = Connection.uuids connection
                                 putStrLn $ "Remote uuids: " ++ show remoteUuids
-                                messages <- loadJournal msgPath
-                                putStrLn $ "messages: " ++ show messages
-                                let msgs = filter (\e -> messageId e `notElem` remoteUuids) messages
+                                let msgs = reverse $ filter (\e -> messageId e `notElem` remoteUuids) (journal st')
                                 client <- readMVar clientMV
                                 mapM_ (syncBackMessage conn client) msgs
                                 putStrLn $ "Sent all missing messages to " ++ show from
@@ -197,7 +199,7 @@ serverApp msgPath chan stateMV pending_conn = do
                             _ -> Monad.unless (messageId msg `elem` Main.uuids st') $ do
                                 appendMessage msgPath msg
                                 state <- takeMVar stateMV
-                                putMVar stateMV $! update state msg
+                                putMVar stateMV $! (update state msg){journal = msg : journal state}
                                 writeChan msChan msg
                                 putStrLn "Writing to the chan"
                     Left err -> putStrLn $ "### ERROR ### decoding incoming message:\n" ++ err
@@ -227,7 +229,7 @@ serve (Options storePath listHost listenPort) = do
     putStrLn "Reconstructing the State..."
     msgs <- loadJournal storePath
     state <- takeMVar stateMV
-    let newState = foldl update state msgs -- TODO foldr or strict foldl ?
+    let newState = (foldl update state msgs){journal = reverse msgs} -- TODO foldr or strict foldl ?
     putMVar stateMV newState
     putStrLn $ "STATE:\n" ++ show newState
     -- listen for clients
