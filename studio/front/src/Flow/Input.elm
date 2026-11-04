@@ -1,16 +1,16 @@
 module Flow.Input exposing (Config, input)
 
 import Dict
-import Element exposing (..)
+import Element exposing (Element, alignTop, centerY, column, el, fill, minimum, none, padding, spacing, text, width, wrappedRow)
 import Element.Background as Background
-import Flow exposing (Flow(..))
-import Scope exposing (Scope(..))
+import Ontology.Flow exposing (Flow(..))
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type
 import Scope.State exposing (containsScope)
 import Shared
-import Type
-import View exposing (..)
+import View exposing (h2, p, withDefaultContent)
 import View.Smallcard exposing (tClickableCard, viewHalfCard)
-import View.Style exposing (..)
+import View.Style exposing (color)
 
 
 type alias Config msg =

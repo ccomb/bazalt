@@ -15,3 +15,5 @@ venv/
 geckodriver.log
 Pipfile.lock
 package-lock.json
+test-results/
+playwright-report/

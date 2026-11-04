@@ -1,6 +1,6 @@
 module View.Radio exposing (Config, view)
 
-import Element exposing (..)
+import Element exposing (Element, paddingXY, spacing, text)
 import Element.Font as Font
 import Element.Input as Input
 import View.Style exposing (size)

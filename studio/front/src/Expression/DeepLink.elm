@@ -1,65 +1,8 @@
-module Expression.DeepLink exposing (DeepLink(..), addTail, decoder, encode, isComplete, terminate, toScope)
+module Expression.DeepLink exposing (addTail, isComplete, terminate)
 
-import Expression.HardLink as HardLink exposing (HardLink)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
-import Scope exposing (Scope(..))
-
-
-type DeepLink
-    = Null
-    | Link HardLink DeepLink
-      -- the endpoint corresponds to a ValueType
-      -- the EndPoint scope is the restriction given by the last hardlink destination
-    | EndPoint Scope String
-
-
-encode : DeepLink -> Encode.Value
-encode deeplink =
-    case deeplink of
-        -- TODO we shouldn't be able to add an incomplete deeplink here
-        Link hl dl ->
-            Encode.object
-                [ ( "type", Encode.string "Link" )
-                , ( "hardlink", HardLink.encode hl )
-                , ( "deeplink", encode dl )
-                ]
-
-        Null ->
-            Encode.object
-                [ ( "type", Encode.string "Null" )
-                ]
-
-        EndPoint scope name ->
-            Encode.object
-                [ ( "type", Encode.string "Endpoint" )
-                , ( "scope", Scope.encode scope )
-                , ( "name", Encode.string name )
-                ]
-
-
-decoder : Decoder DeepLink
-decoder =
-    Decode.field "type" Decode.string
-        |> Decode.andThen
-            (\t ->
-                case t of
-                    "Link" ->
-                        Decode.map2 Link
-                            (Decode.field "hardlink" HardLink.decoder)
-                            (Decode.field "deeplink" decoder)
-
-                    "Null" ->
-                        Decode.succeed Null
-
-                    "Endpoint" ->
-                        Decode.map2 EndPoint
-                            (Decode.field "scope" Scope.decoder)
-                            (Decode.field "name" Decode.string)
-
-                    _ ->
-                        Decode.fail "Unknown type of DeepLink"
-            )
+import Ontology.Expression.Deeplink exposing (DeepLink(..))
+import Ontology.Expression.HardLink exposing (HardLink)
+import Ontology.Scope exposing (Scope)
 
 
 addTail : HardLink -> DeepLink -> DeepLink
@@ -99,17 +42,3 @@ terminate scope name dl =
 
         EndPoint _ _ ->
             EndPoint scope name
-
-
-toScope : Scope -> DeepLink -> Scope
-toScope scope deeplink =
-    -- TODO pass the restriction scope on the hardlink to narrow the choice of values
-    case deeplink of
-        Null ->
-            scope
-
-        Link hl dl ->
-            toScope (HardLink.toScope hl) dl
-
-        EndPoint _ _ ->
-            scope

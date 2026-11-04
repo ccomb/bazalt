@@ -1,10 +1,12 @@
 module Value.Valuable exposing (getValues)
 
 import Dict exposing (Dict)
+import Ontology.Type exposing (Type)
+import Ontology.Value.Value exposing (Value)
+import Ontology.Value.ValueType exposing (ValueType)
 import Prng.Uuid exposing (Uuid)
-import Type exposing (Type)
-import Value.Value as Value exposing (Value)
-import Value.ValueType exposing (ValueType, initValues)
+import Value.Value as Value
+import Value.ValueType exposing (initValues)
 
 
 getValues : Dict String ( Uuid, Type, Maybe Uuid ) -> Dict String ValueType -> Dict String Value -> Type -> Uuid -> Maybe Uuid -> Bool -> Dict String Value

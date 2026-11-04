@@ -1,40 +1,42 @@
-module Commitment.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module Commitment.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
-import Commitment.Commitment exposing (Commitment)
-import CommitmentType.CommitmentType exposing (CommitmentType)
 import Date
 import DateTime.View
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, column, el, fill, height, minimum, padding, px, shrink, spacing, text, width, wrappedRow)
 import Element.Border as Border
-import Expression exposing (Expression)
 import Expression.Input
-import Flow exposing (Flow(..))
 import Flow.Input
 import Group.Group as Group
 import Group.Input exposing (inputGroups)
-import Group.Link exposing (Link)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.Input exposing (inputIdentifiers)
-import Payload
+import Ontology.Commitment.Commitment exposing (Commitment)
+import Ontology.CommitmentType.CommitmentType exposing (CommitmentType)
+import Ontology.Expression exposing (Expression)
+import Ontology.Flow exposing (Flow(..))
+import Ontology.Group.Link exposing (Link)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Payload as Payload
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
 import Random.Pcg.Extended as Random exposing (Seed)
 import Route exposing (Route, redirect)
-import Scope exposing (Scope(..))
 import Scope.State exposing (containsScope)
 import Shared
 import Spa.Page
 import Time exposing (millisToPosix)
-import Type
-import Typed.Type as TType
 import Util exposing (andMapR, checkMaybe, chooseIfSingleton, third)
 import Value.Input exposing (inputValues)
 import Value.Valuable exposing (getValues)
-import Value.Value as Value exposing (Value)
-import View exposing (..)
+import Value.Value as Value
+import View exposing (View, closeMenu, floatingContainer, h1, h2)
 import View.FlatSelect exposing (flatSelect)
 import View.Step as Step exposing (Step(..), buttons)
 import View.Style exposing (color)

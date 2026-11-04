@@ -1,30 +1,33 @@
-module Configuration.Zone.AddPage exposing (Flags, Model, Msg(..), match, page)
+module Configuration.Zone.AddPage exposing (Flags, Model, Msg, match, page)
 
-import Configuration exposing (Configuration(..))
-import Configuration.Zone as Zone exposing (Zone(..))
-import Configuration.Zone.Fragment as Fragment exposing (Fragment(..))
+import Configuration.Zone as Zone
+import Configuration.Zone.Fragment as Fragment
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, fill, height, htmlAttribute, none, padding, paragraph, pointer, px, row, shrink, spacing, text, width, wrappedRow)
 import Element.Background as Background
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as Attr
-import Payload
+import Ontology.Configuration exposing (Configuration(..))
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Configuration.Zone.Fragment exposing (Fragment(..))
+import Ontology.Payload as Payload
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
 import Route exposing (Route, redirect)
-import Scope exposing (Scope(..))
+import Scope
 import Scope.State exposing (containsScope)
 import Scope.View exposing (selectScope)
 import Shared
 import Spa.Page
 import State exposing (State)
-import Type
-import Typed.Type as TType
 import Util exposing (checkEmptyList)
-import View exposing (..)
+import View exposing (View, button, closeMenu, floatingContainer)
 import View.MultiSelect exposing (multiSelect)
-import View.Style exposing (..)
+import View.Style exposing (color)
 
 
 type Msg
@@ -240,7 +243,7 @@ allByScope s scope =
                 |> List.map (\it -> GroupIdentifierName { scope = it.scope, name = it.name })
     in
     identifierNames
-        ++ Fixed ""
+        ++ Fixed { string = "" }
         :: (case scope of
                 IsItem (Type.TType TType.Commitment) _ ->
                     [ Quantity, Flow, Provider, Receiver ]
@@ -308,10 +311,10 @@ inputFragment : List Fragment -> Int -> Fragment -> Element Msg
 inputFragment fragments index fragment =
     let
         attrId =
-            htmlAttribute <| Attr.id ("segment" ++ "/" ++ String.fromInt index)
+            htmlAttribute <| Attr.id ("segment/" ++ String.fromInt index)
     in
     case fragment of
-        Fixed value ->
+        Fixed fixed ->
             Input.text [ width (px 75), height shrink, padding 5, spacing 5, attrId ]
                 { onChange =
                     \v ->
@@ -320,13 +323,13 @@ inputFragment fragments index fragment =
                                 |> List.indexedMap
                                     (\i f ->
                                         if i == index then
-                                            Fixed v
+                                            Fixed { string = v }
 
                                         else
                                             f
                                     )
                             )
-                , text = value
+                , text = fixed.string
                 , placeholder = Nothing
                 , label = Input.labelHidden "Fixed"
                 }

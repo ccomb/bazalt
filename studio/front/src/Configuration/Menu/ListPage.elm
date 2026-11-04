@@ -4,16 +4,16 @@ module Configuration.Menu.ListPage exposing (Flags, Model, Msg, match, page)
    Draft page for an easy menu configuration : all types, and checkboxes on each one to display or hide in the menu
 -}
 
-import Configuration exposing (Configuration)
+import Configuration
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
-import Message
+import Element exposing (Element, column, none, spacing, text, wrappedRow)
+import Ontology.Configuration exposing (Configuration)
 import Prng.Uuid exposing (Uuid)
 import Route exposing (Route)
 import Shared
 import Spa.Page
-import View exposing (..)
+import View exposing (View, button, closeMenu, flatContainer, h1, p, withDefaultContent)
 import View.Smallcard exposing (clickableRemovableCard)
 
 
@@ -34,7 +34,7 @@ page : Shared.Model -> Spa.Page.Page Flags Shared.Msg (View Msg) Model Msg
 page s =
     Spa.Page.element
         { init = init s
-        , update = update s
+        , update = update
         , view = view
         , subscriptions = \_ -> Sub.none
         }
@@ -55,8 +55,8 @@ init s f =
     ( { route = f.route }, closeMenu f s.menu )
 
 
-update : Shared.Model -> Msg -> Model -> ( Model, Effect Shared.Msg Msg )
-update _ _ model =
+update : Msg -> Model -> ( Model, Effect Shared.Msg Msg )
+update _ model =
     ( model, Effect.none )
 
 

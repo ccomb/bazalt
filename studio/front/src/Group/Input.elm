@@ -1,24 +1,27 @@
 module Group.Input exposing (Config, Model, Msg, added, init, inputGroups, removed, update)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import Dict exposing (Dict)
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, fill, height, minimum, none, padding, px, shrink, spacing, text, width, wrappedRow)
 import Element.Border as Border
-import GroupType.GroupType as GroupType exposing (GroupType)
-import Hierarchy.Type as HType
+import GroupType.GroupType as GroupType
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.GroupType.GroupType exposing (GroupType)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Tree as Tree
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import Scope.State exposing (containsScope)
 import Shared
 import State exposing (State)
 import Tree
 import Type
-import Typed.Type as TType
 import Util exposing (third)
-import View exposing (..)
+import View exposing (button, h2, p, withDefaultContent)
 import View.Smallcard exposing (tClickableCard, viewHalfCard)
-import View.Style exposing (..)
+import View.Style exposing (color)
 
 
 type alias Config =
@@ -51,8 +54,7 @@ groupDict : Model -> Dict String Uuid
 groupDict model =
     model.groups
         |> Dict.values
-        |> List.map (Tuple.second >> Dict.values)
-        |> List.concat
+        |> List.concatMap (Tuple.second >> Dict.values)
         |> List.map (\uuid -> ( Uuid.toString uuid, uuid ))
         |> Dict.fromList
 

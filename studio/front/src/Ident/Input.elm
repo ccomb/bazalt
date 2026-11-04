@@ -1,12 +1,13 @@
 module Ident.Input exposing (Config, inputIdentifiers)
 
 import Dict exposing (Dict)
-import Element exposing (..)
+import Element exposing (Element, column, el, fill, height, htmlAttribute, minimum, paddingXY, px, row, spacing, text, width)
 import Element.Input as Input
 import Html.Attributes as Attr
-import Ident.Fragment exposing (Fragment(..))
-import Ident.Identifier as Identifier exposing (Identifier)
-import View exposing (..)
+import Ident.Identifier as Identifier
+import Ontology.Ident.Fragment exposing (Fragment(..))
+import Ontology.Ident.Identifier exposing (Identifier)
+import View exposing (h2, p, withDefaultContent)
 
 
 type alias Config msg =

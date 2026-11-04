@@ -1,24 +1,19 @@
 module Expression.View exposing (Config, inputExpression, viewExpression)
 
-import Element exposing (..)
-import Expression exposing (Expression(..))
+import Element exposing (Element, fill, height, htmlAttribute, text, width, wrappedRow)
 import Expression.Binary as B
-import Expression.DeepLink exposing (DeepLink(..))
 import Expression.DeepLink.View
 import Expression.Eval as Eval
-import Expression.HardLink exposing (HardLink(..))
-import Expression.Observable exposing (Observable(..))
 import Expression.Rational as Rational
 import Expression.Unary as U
-import Expression.ValueSelection as ValueSelection exposing (ValueSelection(..))
 import Html.Attributes as Attr
+import Ontology.Expression exposing (Expression(..))
+import Ontology.Expression.Observable exposing (Observable(..))
+import Ontology.Expression.ValueSelection as ValueSelection
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import State exposing (State)
-import Type exposing (Type)
-import Value.Value as Value exposing (..)
-import View exposing (..)
-import View.Style exposing (..)
+import Value.Value as Value
 
 
 type alias Config =
@@ -123,12 +118,5 @@ inputObservable s c obs =
         ObsLink _ ->
             wrappedRow [ width fill, height fill ]
                 [ text <|
-                    case
-                        Err "TODO1"
-                    of
-                        Err err ->
-                            err
-
-                        Ok r ->
-                            Rational.toString r
+                    "TODO1"
                 ]

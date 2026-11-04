@@ -2,14 +2,15 @@ module Ident.ListPage exposing (Flags, Model, Msg, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
-import Ident.IdentifierType as IT exposing (IdentifierType)
-import Payload
+import Element exposing (Element, none, row, spacing, text, wrappedRow)
+import Ident.IdentifierType as IT
+import Ontology.Ident.IdentifierType exposing (IdentifierType)
+import Ontology.Payload as Payload
 import Route exposing (Route, redirect)
 import Scope.View
 import Shared
 import Spa.Page
-import View exposing (..)
+import View exposing (View, button, closeMenu, flatContainer, p, withDefaultContent)
 import View.Smallcard exposing (clickableRemovableCard)
 
 

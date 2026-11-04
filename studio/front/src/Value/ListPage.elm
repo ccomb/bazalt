@@ -2,14 +2,15 @@ module Value.ListPage exposing (Flags, Model, Msg, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
-import Payload
+import Element exposing (Element, none, row, spacing, text, wrappedRow)
+import Ontology.Payload as Payload
+import Ontology.Value.ValueType exposing (ValueType)
 import Route exposing (Route, redirect)
 import Scope.View
 import Shared
 import Spa.Page
-import Value.ValueType as VT exposing (ValueType)
-import View exposing (..)
+import Value.ValueType as VT
+import View exposing (View, button, closeMenu, flatContainer, p, withDefaultContent)
 import View.Smallcard exposing (clickableRemovableCard)
 
 

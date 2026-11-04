@@ -1,18 +1,9 @@
-module Resource.Resource exposing (Resource, compare, decoder, encode, resourceOf)
+module Resource.Resource exposing (compare, resourceOf)
 
 import Dict exposing (Dict)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ontology.Flow exposing (Flow(..))
+import Ontology.Resource.Resource exposing (Resource)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
-import Typed.Type as TType
-
-
-type alias Resource =
-    { what : TType.Type
-    , uuid : Uuid -- not sure we always need a uuid ?
-    , type_ : Uuid
-    }
 
 
 compare : Resource -> String
@@ -23,31 +14,20 @@ compare =
     .uuid >> Uuid.toString
 
 
-resourceOf : Dict String { a | resource : Uuid } -> Dict String Resource -> Uuid -> List Uuid
+resourceOf : Dict String { a | flow : Flow } -> Dict String Resource -> Uuid -> List Uuid
 resourceOf entities resources uuid =
+    -- the resource flowing in the entity, if it is a resource and not a resource type
     Dict.get (Uuid.toString uuid) entities
         |> Maybe.map
             (\e ->
-                resources
-                    |> Dict.filter (\_ v -> v.uuid == e.resource)
-                    |> Dict.values
-                    |> List.map .uuid
+                case e.flow of
+                    ResourceFlow r ->
+                        resources
+                            |> Dict.filter (\_ v -> v.uuid == r.uuid)
+                            |> Dict.values
+                            |> List.map .uuid
+
+                    ResourceTypeFlow _ ->
+                        []
             )
         |> Maybe.withDefault []
-
-
-encode : Resource -> Encode.Value
-encode r =
-    Encode.object <|
-        [ ( "what", TType.encode r.what )
-        , ( "uuid", Uuid.encode r.uuid )
-        , ( "type_", Uuid.encode r.type_ )
-        ]
-
-
-decoder : Decoder Resource
-decoder =
-    Decode.map3 Resource
-        (Decode.field "what" TType.decoder)
-        (Decode.field "uuid" Uuid.decoder)
-        (Decode.field "type_" Uuid.decoder)

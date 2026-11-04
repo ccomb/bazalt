@@ -23,7 +23,7 @@ import Contract.ViewPage
 import ContractType.AddPage
 import ContractType.ListPage
 import ContractType.ViewPage
-import Element exposing (..)
+import Element exposing (column, fill, height, layout, padding, rgb, row, spacing, text, width)
 import Element.Background as Background
 import Element.Font as Font
 import Event.AddPage
@@ -94,6 +94,9 @@ port messagesReceiver : (String -> msg) -> Sub msg
 port newSeed : (List Int -> msg) -> Sub msg
 
 
+port ioError : (String -> msg) -> Sub msg
+
+
 
 -- TODO get or create a session uuid, retrieve the last message time, send to haskell )
 
@@ -111,6 +114,7 @@ subscriptions _ =
         , wsClose WSDisconnected
         , wsError WSError
         , newSeed GotNewSeed
+        , ioError IOFailed
         ]
 
 

@@ -1,7 +1,6 @@
-module Util exposing (andMapR, checkAllOk, checkEmptyDict, checkEmptyList, checkEmptyString, checkListOne, checkMaybe, checkNothing, chooseIfSingleton, dup, encodeTuple, flip, ifEmpty, indexOf, orShowError, otherwise, otherwiseR, second, third)
+module Util exposing (andMapR, checkAllOk, checkEmptyDict, checkEmptyList, checkEmptyString, checkListOne, checkMaybe, chooseIfSingleton, flip, ifEmpty, indexOf, otherwise, otherwiseR, third)
 
 import Dict exposing (Dict)
-import Json.Encode as Encode
 
 
 otherwise : Maybe a -> Maybe a -> Maybe a
@@ -24,34 +23,9 @@ otherwiseR fallback main =
             fallback
 
 
-orShowError : Result String String -> String
-orShowError result =
-    case result of
-        Ok ok ->
-            ok
-
-        Err err ->
-            err
-
-
-second : ( a, b, c ) -> b
-second =
-    \( _, x, _ ) -> x
-
-
 third : ( a, b, c ) -> c
 third =
     \( _, _, x ) -> x
-
-
-checkNothing : Maybe a -> String -> Result String (Maybe a)
-checkNothing ma err =
-    case ma of
-        Nothing ->
-            Err err
-
-        Just x ->
-            Ok (Just x)
 
 
 checkMaybe : Maybe a -> String -> Result String a
@@ -109,11 +83,6 @@ flip f x y =
     f y x
 
 
-dup : (a -> a -> b) -> a -> b
-dup f x =
-    f x x
-
-
 chooseIfSingleton : List a -> Maybe a
 chooseIfSingleton xs =
     if List.length xs == 1 then
@@ -150,8 +119,3 @@ indexOf x =
         >> List.filter (\z -> x == Tuple.second z)
         >> List.head
         >> Maybe.map Tuple.first
-
-
-encodeTuple : (a -> Encode.Value) -> (b -> Encode.Value) -> ( a, b ) -> Encode.Value
-encodeTuple enc1 enc2 ( val1, val2 ) =
-    Encode.list identity [ enc1 val1, enc2 val2 ]

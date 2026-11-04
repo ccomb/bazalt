@@ -1,37 +1,39 @@
-module CommitmentType.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module CommitmentType.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
-import CommitmentType.CommitmentType exposing (CommitmentType)
-import Configuration as Config exposing (Configuration(..))
-import Configuration.Zone exposing (Zone(..))
+import Configuration as Config
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, fill, minimum, row, spacing, text, width)
 import Element.Font as Font
 import Element.Input as Input
-import Expression exposing (Expression(..))
-import Expression.Editor exposing (view)
+import Expression.Editor
 import Group.Group as Group
 import Group.Input exposing (inputGroups)
-import Group.Link exposing (Link)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.Input exposing (inputIdentifiers)
-import Payload
+import Ontology.CommitmentType.CommitmentType exposing (CommitmentType)
+import Ontology.Configuration exposing (Configuration(..))
+import Ontology.Group.Link exposing (Link)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Payload as Payload
+import Ontology.Scope as Scope exposing (Scope(..))
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
 import Random.Pcg.Extended as Random exposing (Seed)
 import Route exposing (Route, redirect)
-import Scope exposing (Scope(..))
+import Scope
 import Scope.View exposing (selectScope)
 import Shared
 import Spa.Page
-import Type
-import Typed.Type as TType
 import Util exposing (third)
 import Value.Input exposing (inputValues)
 import Value.Valuable exposing (getValues)
-import Value.Value as Value exposing (Value)
-import View exposing (..)
+import Value.Value as Value
+import View exposing (View, closeMenu, floatingContainer2, h2, h3)
 import View.FlatSelect exposing (flatSelect)
 import View.Step as Step exposing (Step(..), buttons)
 import View.Style exposing (size)

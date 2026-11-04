@@ -1,31 +1,33 @@
-module Resource.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module Resource.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, column, row, spacing, text)
 import Expression.Rational as Rational
 import Expression.RationalInput as RationalInput exposing (RationalInput)
 import Group.Group as Group
 import Group.Input exposing (inputGroups)
-import Group.Link exposing (Link)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.Input exposing (inputIdentifiers)
-import Payload
+import Ontology.Group.Link exposing (Link)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Payload as Payload
+import Ontology.Resource.Resource exposing (Resource)
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
 import Random.Pcg.Extended as Random exposing (Seed)
-import Resource.Resource exposing (Resource)
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
-import Type
-import Typed.Type as TType
 import Util exposing (third)
 import Value.Input exposing (inputValues)
 import Value.Valuable exposing (getValues)
-import Value.Value as Value exposing (Value)
-import View exposing (..)
+import Value.Value as Value
+import View exposing (View, closeMenu, floatingContainer)
 import View.FlatSelect exposing (flatSelect)
 import View.Step as Step exposing (Step(..), buttons)
 
@@ -50,6 +52,7 @@ type alias Model =
     , uuid : Uuid
     , seed : Seed
     , type_ : Maybe Uuid
+    , qty : RationalInput
     , identifiers : Dict String Identifier
     , values : Dict String Value
     , gsubmodel : Group.Input.Model
@@ -68,6 +71,7 @@ type Step
 
 type Msg
     = InputType (Maybe Uuid)
+    | InputQty RationalInput
     | InputIdentifier Identifier
     | InputValue Value
     | GroupMsg Group.Input.Msg
@@ -116,6 +120,7 @@ init s f =
             { route = f.route
             , isNew = isNew
             , type_ = wantedType
+            , qty = ""
             , uuid = newUuid
             , seed = newSeed
             , identifiers = getIdentifiers s.state hereType newUuid wantedType True
@@ -141,6 +146,7 @@ init s f =
                 in
                 ( { adding
                     | type_ = realType
+                    , qty = Dict.get (Uuid.toString uuid) s.state.resources |> Maybe.map (.qty >> Rational.toString) |> Maybe.withDefault ""
                     , uuid = uuid
                     , identifiers = getIdentifiers s.state hereType uuid realType False
                     , values = getValues s.state.types s.state.valueTypes s.state.values hereType uuid realType False
@@ -163,6 +169,9 @@ update s msg model =
               }
             , Effect.none
             )
+
+        InputQty q ->
+            ( { model | qty = q }, Effect.none )
 
         InputIdentifier i ->
             ( { model | identifiers = Dict.insert (Identifier.compare i) i model.identifiers }, Effect.none )
@@ -214,9 +223,7 @@ checkStep : Model -> Result String ()
 checkStep model =
     case model.step of
         Step StepType ->
-            model.type_
-                |> Result.fromMaybe "You must select a Resource Type"
-                |> Result.map (always ())
+            validate model |> Result.map (always ())
 
         Step StepIdentifiers ->
             Ok ()
@@ -230,9 +237,10 @@ checkStep model =
 
 validate : Model -> Result String Resource
 validate m =
-    Result.map
+    Result.map2
         (Resource TType.Resource m.uuid)
         (Result.fromMaybe "You must select a Resource Type" m.type_)
+        (Rational.fromString m.qty)
 
 
 viewContent : Model -> Shared.Model -> Element Msg
@@ -252,6 +260,7 @@ viewContent model s =
                             , additional = Nothing
                             }
                             (s.state.resourceTypes |> Dict.map (\_ a -> a.uuid))
+                        , row [ spacing 5 ] [ text "Quantity:", RationalInput.inputText Rational.fromString "qty" (Just "quantity") InputQty model.qty ]
                         ]
 
                 Step.Step StepGroups ->

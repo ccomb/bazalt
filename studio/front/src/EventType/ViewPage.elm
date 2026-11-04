@@ -1,28 +1,28 @@
-module EventType.ViewPage exposing (Flags, Model, Msg(..), match, page)
+module EventType.ViewPage exposing (Flags, Model, Msg, match, page)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
-import EventType.EventType exposing (EventType)
+import Element exposing (Element, text)
 import EventType.View
 import Expression.View
 import Group.View exposing (displayGroupTable)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
 import Ident.View exposing (displayIdentifierDict)
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.EventType.EventType exposing (EventType)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
 import Route exposing (Route, redirect)
 import Scope.View
 import Shared
 import Spa.Page
-import Type exposing (Type)
-import Typed.Type as TType
 import Util exposing (third)
 import Value.Valuable exposing (getValues)
 import Value.View exposing (displayValueDict)
-import View exposing (..)
+import View exposing (View, button, closeMenu, floatingContainer, h2)
 
 
 mainHType : Type

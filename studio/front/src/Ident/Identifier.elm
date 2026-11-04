@@ -1,20 +1,11 @@
-module Ident.Identifier exposing (Identifier, compare, decoder, encode, fromUuid, select, toValue, update)
+module Ident.Identifier exposing (compare, fromUuid, select, toValue, update)
 
 import Dict exposing (Dict)
-import Ident.Fragment as Fragment exposing (Fragment)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ident.Fragment as Fragment
+import Ontology.Ident.Fragment exposing (Fragment)
+import Ontology.Ident.Identifier exposing (Identifier)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Type exposing (Type)
-
-
-type alias Identifier =
-    -- This is the value of an identifier
-    { what : Type
-    , for : Uuid
-    , name : String
-    , fragments : List Fragment
-    }
+import Type
 
 
 select : String -> Dict String Identifier -> List Identifier
@@ -30,25 +21,6 @@ fromUuid uuid =
 compare : Identifier -> String
 compare i =
     Type.compare i.what ++ "/" ++ Uuid.toString i.for ++ "/" ++ i.name
-
-
-encode : Identifier -> Encode.Value
-encode i =
-    Encode.object
-        [ ( "what", Type.encode i.what )
-        , ( "for", Uuid.encode i.for )
-        , ( "name", Encode.string i.name )
-        , ( "fragments", Encode.list Fragment.encode i.fragments )
-        ]
-
-
-decoder : Decoder Identifier
-decoder =
-    Decode.map4 Identifier
-        (Decode.field "what" Type.decoder)
-        (Decode.field "for" Uuid.decoder)
-        (Decode.field "name" Decode.string)
-        (Decode.field "fragments" (Decode.list Fragment.decoder))
 
 
 toValue : Identifier -> String

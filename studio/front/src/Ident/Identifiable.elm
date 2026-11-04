@@ -1,11 +1,12 @@
 module Ident.Identifiable exposing (getIdentifiers)
 
 import Dict exposing (Dict)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.IdentifierType exposing (initIdentifiers)
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
 import State exposing (State)
-import Type exposing (Type)
 
 
 

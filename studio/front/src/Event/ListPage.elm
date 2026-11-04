@@ -2,18 +2,18 @@ module Event.ListPage exposing (Flags, Model, Msg, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
-import Payload exposing (Payload(..))
+import Element exposing (Element, none, spacing, wrappedRow)
+import Ontology.Payload exposing (Payload(..))
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
 import Route exposing (Route)
-import Scope exposing (Scope(..))
 import Shared
 import Spa.Page
 import Type
-import Typed.Type as TType
-import View exposing (..)
+import View exposing (View, button, closeMenu, flatContainer, p, withDefaultContent)
 import View.Smallcard exposing (tClickableRemovableCard)
-import View.Style exposing (..)
 import View.Table exposing (tView)
 import View.Type as ViewType
 
@@ -41,7 +41,7 @@ page s =
     Spa.Page.element
         { init = init s
         , update = update s
-        , view = view s
+        , view = view
         , subscriptions = \_ -> Sub.none
         }
 
@@ -77,8 +77,8 @@ update s msg model =
             ( { model | viewtype = vt }, Effect.none )
 
 
-view : Shared.Model -> Model -> View Msg
-view _ model =
+view : Model -> View Msg
+view model =
     { title = "Events"
     , attributes = []
     , element = viewContent model

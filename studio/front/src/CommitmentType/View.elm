@@ -1,10 +1,10 @@
 module CommitmentType.View exposing (svg)
 
-import Element exposing (..)
+import Element exposing (Element, html)
 import Svg as S
 import Svg.Attributes as A
 import View exposing (lenToPx)
-import View.Style as Style exposing (..)
+import View.Style as Style
 
 
 svg : String -> String -> String -> Element msg

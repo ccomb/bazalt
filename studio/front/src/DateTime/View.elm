@@ -3,14 +3,14 @@ module DateTime.View exposing (Model, Msg, init, inputDate, toPosix, update)
 import Calendar
 import Date exposing (Date)
 import DateTime
-import Element exposing (..)
+import Element exposing (Element, alignRight, alpha, centerX, column, el, fill, mouseOver, none, padding, pointer, px, row, spacing, text, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Shared
 import Task
-import Time exposing (Month(..), Posix, Weekday(..), millisToPosix)
+import Time exposing (Posix, millisToPosix)
 import View exposing (button)
 import View.Style exposing (color, isMobile, shadowStyle, size)
 

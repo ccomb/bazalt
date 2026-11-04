@@ -1,29 +1,31 @@
-module Agent.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module Agent.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
-import Agent.Agent exposing (Agent)
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element)
 import Group.Group as Group
 import Group.Input exposing (inputGroups)
-import Group.Link exposing (Link)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.Input exposing (inputIdentifiers)
-import Payload
+import Ontology.Agent.Agent exposing (Agent)
+import Ontology.Group.Link exposing (Link)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Payload as Payload
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
 import Random.Pcg.Extended as Random exposing (Seed)
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
-import Type
-import Typed.Type as TType
 import Util exposing (third)
 import Value.Input exposing (inputValues)
 import Value.Valuable exposing (getValues)
-import Value.Value as Value exposing (Value)
-import View exposing (..)
+import Value.Value as Value
+import View exposing (View, closeMenu, floatingContainer)
 import View.FlatSelect exposing (flatSelect)
 import View.Step as Step exposing (Step(..), buttons)
 

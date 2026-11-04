@@ -1,20 +1,7 @@
-module Typed.Type exposing (Type(..), all, decoder, encode, fromString, toDisplay, toHierarchic, toPluralDisplay, toString)
+module Typed.Type exposing (all, toDisplay, toHierarchic, toPluralDisplay, toString)
 
-import Hierarchy.Type as HType
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
-
-
-type
-    Type
-    -- what types are identifiable?
-    = Resource
-    | Event
-    | Agent
-    | Commitment
-    | Contract
-    | Process
-    | Group
+import Ontology.Hierarchy.Type as HType
+import Ontology.Typed.Type exposing (Type(..))
 
 
 all : List Type
@@ -77,16 +64,6 @@ toDisplay =
     toString
 
 
-encode : Type -> Encode.Value
-encode =
-    toString >> Encode.string
-
-
-decoder : Decoder Type
-decoder =
-    Decode.string |> Decode.andThen (fromString >> Maybe.map Decode.succeed >> Maybe.withDefault (Decode.fail "Unknown Type"))
-
-
 toPluralDisplay : Type -> String
 toPluralDisplay t =
     -- TODO not i18n friendly
@@ -96,31 +73,3 @@ toPluralDisplay t =
 
         _ ->
             toDisplay t ++ "s"
-
-
-fromString : String -> Maybe Type
-fromString s =
-    case s of
-        "Resource" ->
-            Just Resource
-
-        "Event" ->
-            Just Event
-
-        "Agent" ->
-            Just Agent
-
-        "Commitment" ->
-            Just Commitment
-
-        "Contract" ->
-            Just Contract
-
-        "Process" ->
-            Just Process
-
-        "Group" ->
-            Just Group
-
-        _ ->
-            Nothing

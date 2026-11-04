@@ -1,12 +1,12 @@
 module View.Step exposing (Model, Msg(..), Step(..), buttons, nextMsg, onEnter, update)
 
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Attribute, Element, none, paragraph, text)
 import Element.Font as Font
 import Route exposing (Route)
 import Shared
 import Util exposing (indexOf)
-import View exposing (..)
+import View exposing (button)
 import View.Style exposing (color)
 
 
@@ -30,8 +30,8 @@ type alias Model model step =
     }
 
 
-buttonNextOrValidate : msg -> Model model step -> Result String field -> Element Msg
-buttonNextOrValidate _ model result =
+buttonNextOrValidate : Model model step -> Result String field -> Element Msg
+buttonNextOrValidate model result =
     -- TODO try to suppress using at View.Step.nextMsg
     case result of
         Ok _ ->
@@ -105,7 +105,7 @@ buttons model checkedStep =
       )
         "← Previous"
     , button.secondary (Ok Cancel) "Cancel"
-    , buttonNextOrValidate (Ok Added) model checkedStep
+    , buttonNextOrValidate model checkedStep
     , if model.warning /= "" then
         paragraph [ Font.color color.text.warning ] [ text model.warning ]
 

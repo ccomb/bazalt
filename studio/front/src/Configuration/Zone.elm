@@ -1,12 +1,6 @@
-module Configuration.Zone exposing (Zone(..), all, compare, decoder, encode, toDesc)
+module Configuration.Zone exposing (all, compare, toDesc)
 
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
-
-
-type Zone
-    = SmallcardZone
-    | MenuZone
+import Ontology.Configuration.Zone exposing (Zone(..))
 
 
 all : List Zone
@@ -37,25 +31,3 @@ toDesc zone =
 compare : Zone -> String
 compare =
     toString
-
-
-encode : Zone -> Encode.Value
-encode zone =
-    Encode.string (toString zone)
-
-
-decoder : Decoder Zone
-decoder =
-    Decode.string
-        |> Decode.andThen
-            (\zone ->
-                case zone of
-                    "SmallcardZone" ->
-                        Decode.succeed SmallcardZone
-
-                    "MenuZone" ->
-                        Decode.succeed MenuZone
-
-                    _ ->
-                        Decode.fail <| "Unknown Zone: " ++ zone
-            )

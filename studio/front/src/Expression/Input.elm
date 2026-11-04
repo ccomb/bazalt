@@ -1,25 +1,21 @@
 module Expression.Input exposing (Config, inputExpression)
 
-import Element exposing (..)
-import Expression exposing (Expression(..))
+import Element exposing (Element, fill, height, htmlAttribute, row, text)
+import Expression
 import Expression.Binary as B
-import Expression.DeepLink exposing (DeepLink(..))
 import Expression.Eval as Eval
-import Expression.HardLink exposing (HardLink(..))
-import Expression.Observable exposing (Observable(..))
 import Expression.Rational as Rational
 import Expression.RationalInput as RationalInput
 import Expression.Unary as U
-import Expression.ValueSelection as ValueSelection exposing (ValueSelection(..))
 import Html.Attributes as Attr
+import Ontology.Expression exposing (Expression(..))
+import Ontology.Expression.Observable exposing (Observable(..))
+import Ontology.Expression.ValueSelection as ValueSelection
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import State exposing (State)
-import Type exposing (Type)
 import Util exposing (chooseIfSingleton)
-import Value.Value as Value exposing (..)
-import View exposing (..)
-import View.Style exposing (..)
+import Value.Value as Value
 
 
 type alias Config msg =

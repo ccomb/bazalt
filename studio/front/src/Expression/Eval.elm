@@ -1,25 +1,27 @@
-module Expression.Eval exposing (Config, checkEval, dleval, exeval, veval)
+module Expression.Eval exposing (Config, dleval, exeval, veval)
 
+import Ontology.Value.Value exposing (Value)
+import Ontology.Expression exposing (Expression(..))
 import Agent.Agent as Agent
 import Dict exposing (Dict)
-import Expression exposing (..)
 import Expression.Binary as B
-import Expression.DeepLink exposing (DeepLink(..))
-import Expression.HardLink as HardLink exposing (HardLink(..))
-import Expression.Observable exposing (Observable(..))
 import Expression.Rational as Rational exposing (Rational)
 import Expression.Unary as U
-import Expression.ValueSelection exposing (ValueSelection(..))
 import Group.Group as Group
+import Ontology.Expression.Deeplink exposing (DeepLink(..))
+import Ontology.Expression.HardLink as HardLink exposing (HardLink(..))
+import Ontology.Expression.Observable exposing (Observable(..))
+import Ontology.Expression.ValueSelection exposing (ValueSelection(..))
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
 import Resource.Resource as Resource
-import Scope exposing (Scope(..))
+import Scope
 import Scope.State exposing (containsScope)
 import State exposing (State)
 import Tree exposing (parentOf)
-import Type exposing (Type, userTypeOf)
+import Type exposing (userTypeOf)
 import Util exposing (chooseIfSingleton)
-import Value.Value exposing (..)
 
 
 type alias Config =
@@ -30,13 +32,6 @@ type alias Config =
 veval : State -> Config -> Dict String Value -> Value -> Result String Rational
 veval s c allVals value =
     exeval s c allVals value.expr
-
-
-checkEval : State -> Config -> Dict String Value -> Maybe Expression -> Result String Expression
-checkEval s c vs me =
-    me
-        |> Maybe.map (\e -> exeval s c vs e |> Result.map (always e))
-        |> Maybe.withDefault (Err "Invalid value")
 
 
 exeval : State -> Config -> Dict String Value -> Expression -> Result String Rational
@@ -96,7 +91,10 @@ step s hl uuid =
         EventLink HardLink.EventReceiver ->
             Agent.receiverOf s.events s.agents uuid
 
-        EventLink HardLink.EventResource ->
+        EventLink HardLink.EventInflow ->
+            Resource.resourceOf s.events s.resources uuid
+
+        EventLink HardLink.EventOutflow ->
             Resource.resourceOf s.events s.resources uuid
 
         EventLink HardLink.EventGroup ->
@@ -118,7 +116,10 @@ step s hl uuid =
             Agent.receiverOf s.commitments s.agents uuid
 
         CommitmentLink HardLink.CommitmentInflow ->
-            Resource.resourceOf s.events s.resources uuid
+            Resource.resourceOf s.commitments s.resources uuid
+
+        CommitmentLink HardLink.CommitmentOutflow ->
+            Resource.resourceOf s.commitments s.resources uuid
 
         CommitmentLink HardLink.CommitmentGroup ->
             Group.groupsOf s.grouped uuid
@@ -218,7 +219,7 @@ dleval s deeplink currentlist =
 
         Link hardlink nextDeeplink ->
             -- run the eval one step further
-            dleval s nextDeeplink (List.map (\uuid -> step s hardlink uuid) currentlist |> List.concat)
+            dleval s nextDeeplink (List.concatMap (\uuid -> step s hardlink uuid) currentlist)
 
         EndPoint scope name ->
             -- use the transmitted list of uuid and find the corresponding values
@@ -228,4 +229,4 @@ dleval s deeplink currentlist =
                     -- TODO: try to remove toType
                     currentlist |> List.filter (\u -> Scope.toType scope |> Maybe.map (\t -> containsScope s.types (IsItem t u) scope) |> Maybe.withDefault False)
             in
-            List.map (\g -> s.values |> Dict.filter (\_ v -> v.for == g && v.name == name) |> Dict.values) groups |> List.concat
+            List.concatMap (\g -> s.values |> Dict.filter (\_ v -> v.for == g && v.name == name) |> Dict.values) groups

@@ -1,15 +1,14 @@
 module Group.View exposing (displayGroupTable)
 
-import Configuration.Zone exposing (Zone(..))
-import Element exposing (..)
+import Element exposing (Element, fill, shrink, table, text, width)
 import Element.Background as Background
-import View.Style exposing (..)
+import View.Style exposing (color)
 import View.Table exposing (headerCell, innerCell)
 
 
 displayGroupTable : String -> List String -> Element msg
 displayGroupTable default groups =
-    if List.length groups > 0 then
+    if not (List.isEmpty groups) then
         table [ width shrink, Background.color color.item.background ]
             { data = groups
             , columns =

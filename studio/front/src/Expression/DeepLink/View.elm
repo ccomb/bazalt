@@ -1,7 +1,7 @@
 module Expression.DeepLink.View exposing (toDisplay)
 
-import Expression.DeepLink exposing (DeepLink(..))
 import Expression.HardLink as HardLink
+import Ontology.Expression.Deeplink exposing (DeepLink(..))
 import Scope.View
 import State exposing (State)
 

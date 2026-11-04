@@ -1,23 +1,14 @@
-module Value.ValueType exposing (ValueType, compare, decoder, encode, initValues)
+module Value.ValueType exposing (compare, initValues)
 
 import Dict exposing (Dict)
-import Expression exposing (Expression)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type exposing (Type)
+import Ontology.Value.Value exposing (Value)
+import Ontology.Value.ValueType exposing (ValueType)
 import Prng.Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
+import Scope
 import Scope.State exposing (containsScope)
-import Type exposing (Type)
-import Value.Value as Value exposing (Value)
-
-
-type alias ValueType =
-    -- this is the definition of a value field
-    { name : String
-    , expr : Expression
-    , scope : Scope
-    , mandatory : Bool
-    }
+import Value.Value as Value
 
 
 initValues : Dict String ( Uuid, Type, Maybe Uuid ) -> Dict String ValueType -> Type -> Maybe Uuid -> Uuid -> Bool -> Dict String Value
@@ -53,22 +44,3 @@ initValues types vts t muuid uuid isNew =
 compare : ValueType -> String
 compare vt =
     Scope.compare vt.scope ++ "/" ++ vt.name
-
-
-encode : ValueType -> Encode.Value
-encode vt =
-    Encode.object
-        [ ( "name", Encode.string vt.name )
-        , ( "expr", Expression.encode vt.expr )
-        , ( "scope", Scope.encode vt.scope )
-        , ( "mandatory", Encode.bool vt.mandatory )
-        ]
-
-
-decoder : Decoder ValueType
-decoder =
-    Decode.map4 ValueType
-        (Decode.field "name" Decode.string)
-        (Decode.field "expr" Expression.decoder)
-        (Decode.field "scope" Scope.decoder)
-        (Decode.field "mandatory" Decode.bool)

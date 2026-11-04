@@ -1,40 +1,49 @@
 module State exposing (State, aggregate, empty)
 
-import Agent.Agent exposing (Agent)
-import AgentType.AgentType exposing (AgentType)
-import Commitment.Commitment exposing (Commitment)
-import CommitmentType.CommitmentType exposing (CommitmentType)
-import Configuration exposing (Configuration)
-import Contract.Contract exposing (Contract)
-import ContractType.ContractType exposing (ContractType)
+import Configuration
 import Dict exposing (Dict)
-import Event.Event exposing (Event)
-import EventType.EventType exposing (EventType)
-import Group.Group exposing (Group)
 import Group.Link as GroupLink
-import GroupType.GroupType exposing (GroupType)
-import Hierarchy.Type as HType
-import Ident.Identifier as Identifier exposing (Identifier)
-import Ident.IdentifierType as IdentifierType exposing (IdentifierType)
-import Message exposing (Message(..), messageId)
-import MessageFlow exposing (MessageFlow(..))
+import Ident.Identifier as Identifier
+import Ident.IdentifierType as IdentifierType
+import Message exposing (messageId)
 import MessageId exposing (MessageId)
-import Payload exposing (Payload(..))
+import Ontology.Agent.Agent exposing (Agent)
+import Ontology.AgentType.AgentType exposing (AgentType)
+import Ontology.Commitment.Commitment exposing (Commitment)
+import Ontology.CommitmentType.CommitmentType exposing (CommitmentType)
+import Ontology.Configuration exposing (Configuration)
+import Ontology.Contract.Contract exposing (Contract)
+import Ontology.ContractType.ContractType exposing (ContractType)
+import Ontology.Event.Event exposing (Event)
+import Ontology.EventType.EventType exposing (EventType)
+import Ontology.Group.Group exposing (Group)
+import Ontology.Group.Link as GroupLink
+import Ontology.GroupType.GroupType exposing (GroupType)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Ident.IdentifierType exposing (IdentifierType)
+import Ontology.Message exposing (Message)
+import Ontology.MessageFlow exposing (MessageFlow(..))
+import Ontology.Payload exposing (Payload(..))
+import Ontology.Process.Process exposing (Process)
+import Ontology.Process.Reconcile exposing (Reconciliation)
+import Ontology.ProcessType.ProcessType exposing (ProcessType)
+import Ontology.Resource.Resource exposing (Resource)
+import Ontology.ResourceType.ResourceType exposing (ResourceType)
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
+import Ontology.Value.Value exposing (Value)
+import Ontology.Value.ValueType exposing (ValueType)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Process.Process exposing (Process)
-import Process.Reconcile as Reconcile exposing (Reconciliation)
-import ProcessType.ProcessType exposing (ProcessType)
+import Process.Reconcile as Reconcile
 import Relation.ProcessCommitments exposing (ProcessCommitments)
 import Relation.ProcessEvents exposing (ProcessEvents)
-import Resource.Resource as Resource exposing (Resource)
-import ResourceType.ResourceType exposing (ResourceType)
-import Scope exposing (Scope(..))
+import Resource.Resource as Resource
 import Scope.State exposing (containsScope)
 import Time exposing (millisToPosix)
-import Type exposing (Type)
-import Typed.Type as TType
-import Value.Value as Value exposing (Value)
-import Value.ValueType as ValueType exposing (ValueType)
+import Value.Value as Value
+import Value.ValueType as ValueType
 
 
 type alias State =
@@ -128,8 +137,14 @@ empty =
 
 
 aggregate : Message -> State -> State
-aggregate ((Message m p) as msg) state =
+aggregate msg state =
     let
+        m =
+            msg.meta
+
+        p =
+            msg.load
+
         mid =
             messageId msg
 
@@ -141,9 +156,6 @@ aggregate ((Message m p) as msg) state =
             }
     in
     case p of
-        Null ->
-            state
-
         InitiatedConnection _ ->
             case m.flow of
                 Processed ->
@@ -199,11 +211,11 @@ aggregate ((Message m p) as msg) state =
                 | valueTypes = Dict.insert (ValueType.compare it) it state.valueTypes
             }
 
-        ChangedValueType c ->
+        ChangedValueType old new ->
             { commonState
                 | valueTypes =
-                    Dict.insert (ValueType.compare c.new) c.new <|
-                        Dict.remove (ValueType.compare c.old) state.valueTypes
+                    Dict.insert (ValueType.compare new) new <|
+                        Dict.remove (ValueType.compare old) state.valueTypes
                 , values =
                     -- change the name of all the values whose name equals the new name of the identifier type
                     state.values
@@ -211,10 +223,10 @@ aggregate ((Message m p) as msg) state =
                         |> List.map
                             -- rebuild the value compare keys
                             (\v ->
-                                if v.name == c.old.name && containsScope state.types (IsItem v.what v.for) c.new.scope then
+                                if v.name == old.name && containsScope state.types (IsItem v.what v.for) new.scope then
                                     let
                                         newi =
-                                            { v | name = c.new.name }
+                                            { v | name = new.name }
                                     in
                                     ( Value.compare newi, newi )
 
@@ -446,13 +458,13 @@ aggregate ((Message m p) as msg) state =
 
 
 updatePending : Message -> Dict String Message -> Dict String Message
-updatePending (Message m p) ms =
-    case m.flow of
+updatePending msg ms =
+    case msg.meta.flow of
         Requested ->
-            Dict.insert (Message.compare (Message m p)) (Message m p) ms
+            Dict.insert (Message.compare msg) msg ms
 
         Processed ->
-            Dict.remove (Message.compare (Message m p)) ms
+            Dict.remove (Message.compare msg) ms
 
-        Error ->
-            Dict.insert (Message.compare (Message m p)) (Message m p) ms
+        Error _ ->
+            Dict.insert (Message.compare msg) msg ms

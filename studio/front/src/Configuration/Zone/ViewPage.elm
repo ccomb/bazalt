@@ -1,14 +1,15 @@
-module Configuration.Zone.ViewPage exposing (Flags, Model, Msg(..), match, page)
+module Configuration.Zone.ViewPage exposing (Flags, Model, Msg, match, page)
 
-import Configuration exposing (Configuration)
+import Configuration
 import Configuration.View
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, text)
+import Ontology.Configuration exposing (Configuration)
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
-import View exposing (..)
+import View exposing (View, button, closeMenu, floatingContainer, h1)
 
 
 type alias Flags =

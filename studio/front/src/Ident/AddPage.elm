@@ -1,24 +1,26 @@
-module Ident.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module Ident.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, el, fill, htmlAttribute, minimum, none, paddingXY, px, row, spacing, text, width)
 import Element.Font as Font
 import Element.Input as Input
 import Html.Attributes as Attr
-import Ident.Fragment as Fragment exposing (Fragment(..))
-import Ident.IdentifierType exposing (IdentifierType)
-import Payload
+import Ident.Fragment as Fragment
+import Ontology.Ident.Fragment exposing (Fragment(..))
+import Ontology.Ident.IdentifierType exposing (IdentifierType)
+import Ontology.Payload as Payload
+import Ontology.Scope exposing (Scope)
 import Route exposing (Route, redirect)
-import Scope exposing (Scope)
+import Scope
 import Scope.View exposing (selectScope)
 import Shared
 import Spa.Page
 import Util exposing (checkEmptyList, checkEmptyString)
-import View exposing (..)
+import View exposing (View, closeMenu, floatingContainer, h3)
 import View.MultiSelect exposing (multiSelect)
 import View.Step as Step exposing (Msg(..), Step(..), buttons)
-import View.Style exposing (..)
+import View.Style exposing (size)
 
 
 type Msg
@@ -274,7 +276,7 @@ inputFragment : List Fragment -> Int -> Fragment -> Element Msg
 inputFragment fragments index fragment =
     let
         attrId =
-            htmlAttribute <| Attr.id ("segment" ++ "/" ++ String.fromInt index)
+            htmlAttribute <| Attr.id ("segment/" ++ String.fromInt index)
     in
     -- TODO refactor to
     case fragment of

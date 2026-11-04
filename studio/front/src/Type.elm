@@ -1,19 +1,13 @@
-module Type exposing (Type(..), compare, decoder, encode, fromType, hasCommonParent, isChildOf, isParentOf, isType, parents, toDisplay, toHierarchic, toPluralDisplay, toString, toType, typeOf, userTypeOf)
+module Type exposing (compare, hasCommonParent, isChildOf, isParentOf, toDisplay, toHierarchic, toPluralDisplay, toString, toType, userTypeOf)
 
 import Dict exposing (Dict)
 import Hierarchy.Type as HType
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ontology.Hierarchy.Type as HType
+import Ontology.Type exposing (Type(..))
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
 import Typed.Type as TType
-import Util exposing (second, third)
-
-
-type
-    Type
-    -- Try to merge into a single type
-    = TType TType.Type
-    | HType HType.Type
+import Util exposing (third)
 
 
 toDisplay : Type -> String
@@ -46,31 +40,6 @@ toPluralDisplay t =
             HType.toPluralDisplay ht
 
 
-fromString : String -> Maybe Type
-fromString s =
-    TType.fromString s
-        |> Maybe.map TType
-        |> (\t ->
-                case t of
-                    Just tt ->
-                        Just tt
-
-                    Nothing ->
-                        HType.fromString s
-                            |> Maybe.map HType
-           )
-
-
-encode : Type -> Encode.Value
-encode =
-    toString >> Encode.string
-
-
-decoder : Decoder Type
-decoder =
-    Decode.string |> Decode.andThen (fromString >> Maybe.map Decode.succeed >> Maybe.withDefault (Decode.fail "Unknown Type"))
-
-
 toHierarchic : Type -> Type
 toHierarchic t =
     case t of
@@ -84,11 +53,6 @@ toHierarchic t =
 compare : Type -> String
 compare =
     toString
-
-
-typeOf : Dict String ( Uuid, Type, Maybe Uuid ) -> Uuid -> Maybe Type
-typeOf types uuid =
-    Dict.get (Uuid.toString uuid) types |> Maybe.map second
 
 
 userTypeOf : Dict String ( Uuid, Type, Maybe Uuid ) -> Uuid -> Maybe Uuid
@@ -138,11 +102,6 @@ hasCommonParent types uuid1 uuid2 =
                 (Dict.fromList <| List.map (\uuid -> ( Uuid.toString uuid, uuid )) <| parents uuid2 types [])
 
 
-isType : Type -> Bool
-isType t =
-    (String.slice 0 4 <| String.reverse <| toString t) == "epyT"
-
-
 toType : Type -> Type
 toType t =
     case t of
@@ -166,34 +125,6 @@ toType t =
 
         TType TType.Group ->
             HType HType.GroupType
-
-        _ ->
-            t
-
-
-fromType : Type -> Type
-fromType t =
-    case t of
-        HType HType.ResourceType ->
-            TType TType.Resource
-
-        HType HType.EventType ->
-            TType TType.Event
-
-        HType HType.AgentType ->
-            TType TType.Agent
-
-        HType HType.CommitmentType ->
-            TType TType.Commitment
-
-        HType HType.ContractType ->
-            TType TType.Contract
-
-        HType HType.ProcessType ->
-            TType TType.Process
-
-        HType HType.GroupType ->
-            TType TType.Group
 
         _ ->
             t

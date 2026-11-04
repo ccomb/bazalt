@@ -1,15 +1,16 @@
-module Value.ViewPage exposing (Flags, Model, Msg(..), match, page)
+module Value.ViewPage exposing (Flags, Model, Msg, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, row, text)
 import Expression.View
+import Ontology.Value.ValueType exposing (ValueType)
 import Route exposing (Route, redirect)
 import Scope.View
 import Shared
 import Spa.Page
-import Value.ValueType as VT exposing (ValueType)
-import View exposing (..)
+import Value.ValueType as VT
+import View exposing (View, button, closeMenu, floatingContainer, h1, h2)
 
 
 type alias Flags =
@@ -62,13 +63,13 @@ update : Shared.Model -> Msg -> Model -> ( Model, Effect Shared.Msg Msg )
 update s msg model =
     case msg of
         Close ->
-            ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.ValueType (Route.List {type_ = Nothing}) )
+            ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.ValueType (Route.List { type_ = Nothing }) )
 
         Edit ->
             model.valueType
                 |> Maybe.map
                     (\vt ->
-                        ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.ValueType (Route.Edit {uuid = VT.compare vt, type_ = Nothing}) )
+                        ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.ValueType (Route.Edit { uuid = VT.compare vt, type_ = Nothing }) )
                     )
                 |> Maybe.withDefault ( model, Effect.none )
 
