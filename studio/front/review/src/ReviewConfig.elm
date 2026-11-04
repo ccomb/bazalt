@@ -56,3 +56,5 @@ config =
     , NoUnused.Variables.rule
     , Simplify.rule Simplify.defaults
     ]
+        -- generated/ is read, so that its uses count, but never reported or fixed
+        |> List.map (Rule.ignoreErrorsForDirectories [ "generated/" ])
