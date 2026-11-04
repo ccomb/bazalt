@@ -2,7 +2,7 @@
 
 Chaque étape est utilisable seule.
 
-1. Une seule définition de l'ontologie : types Elm générés depuis `message`
+1. (Fait.) Une seule définition de l'ontologie : types Elm générés depuis `message`
    ([ADR 0010](adr/0010-ontologie-definie-une-fois.md)), et correction de la
    clé JSON fautive de `Scope` (`"scpe1"` écrit à la place de `"scope2"`).
 2. Le service passerelle, avec MCP et une ligne de commande

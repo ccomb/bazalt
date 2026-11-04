@@ -77,6 +77,8 @@ cabal build store             # any single package, from the root
 studio/rundev.sh              # build front + back, then run studio on :8080
 studio/front/rundev.sh        # Elm live-reload via elm-go on :8080
 studio/front/review.sh        # elm-review --fix-all
+gen-elm/check.sh              # generated Elm matches the Haskell types, studio compiles
+gen-elm/roundtrip.sh          # random messages survive Haskell → Elm → Haskell
 ./build.docker.sh             # docker image (two-stage, COPY of local sources)
 ./run.compose.sh              # docker compose up with docker-compose.local.yml
 ```
@@ -134,13 +136,17 @@ configuration-driven: `Configuration/Zone.elm` maps identifier fragments to
 display zones per `Scope` — this is how the UI adapts to a modeled business
 without code.
 
-**Invariant to protect**: `message/src/Payload.hs` and
-`studio/front/src/Payload.elm` (plus the surrounding types: `MessageFlow`,
-`Metadata`, `Service`) are hand-kept mirrors — any change on one side must land
-on the other, and usually means an `IDBVERSION` bump. They have already
-drifted (`Event`, `Resource`); `docs/adr/0010` replaces the Elm side by
-code generated from Haskell. Known asymmetry: Elm's
-`MessageFlow.Error` carries no payload while Haskell's carries `Text`.
+**Invariant to protect**: the ontology is defined once, in `message`
+(`docs/adr/0010`). The Elm types and JSON codecs under
+`studio/front/generated/Ontology/` are generated from it: change the Haskell
+types, then run `cabal run exe:bazalt-gen-elm -- studio/front/generated`, and
+commit the result. Never edit `generated/` by hand; only
+`studio/front/src/Ontology/Prim.elm` (instants and rationals) is hand-written.
+Bump `IDBVERSION` whenever the JSON changes.
+
+**Known gap**: the services drop `Error` messages (no branch for them in the
+store's `routeMessage` nor in `studio/back`), so a refusal does not reach the
+studio yet. The studio shows the reason of any `Error` message it receives.
 
 **Known rough edge**: routing in the store is hardcoded per payload
 constructor; `message/src/Service.hs` contains a commented-out
