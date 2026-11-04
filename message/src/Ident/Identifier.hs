@@ -1,11 +1,11 @@
 module Ident.Identifier where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Ident.Fragment (Fragment)
+import Json (taggedOptions)
 import Type (Type)
 
 data Identifier = Identifier
@@ -17,9 +17,7 @@ data Identifier = Identifier
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Identifier where
-    parseJSON :: JSON.Value -> Parser Identifier
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Identifier where
-    toJSON :: Identifier -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

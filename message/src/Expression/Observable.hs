@@ -1,12 +1,12 @@
 module Expression.Observable where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Text as T
 import Expression.Deeplink as Deeplink (DeepLink)
 import Expression.ValueSelection (ValueSelection)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 
 data Observable
     = Constant Rational
@@ -16,9 +16,7 @@ data Observable
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Observable where
-    parseJSON :: JSON.Value -> Parser Observable
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Observable where
-    toJSON :: Observable -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

@@ -1,10 +1,10 @@
 module Configuration where
 
 import Configuration.Zone (Zone)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
+import Json (taggedOptions)
 
 import Configuration.Zone.Fragment (Fragment)
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
@@ -18,9 +18,7 @@ data Configuration
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Configuration where
-    parseJSON :: JSON.Value -> Parser Configuration
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Configuration where
-    toJSON :: Configuration -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

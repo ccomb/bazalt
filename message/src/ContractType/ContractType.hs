@@ -1,10 +1,10 @@
 module ContractType.ContractType where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Type (Type)
 
 data ContractType = ContractType
@@ -15,9 +15,7 @@ data ContractType = ContractType
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ContractType where
-    parseJSON :: JSON.Value -> Parser ContractType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON ContractType where
-    toJSON :: ContractType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

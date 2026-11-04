@@ -1,11 +1,11 @@
 module Connection (Connection (..)) where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Set as Set (Set)
 import Data.Time.Clock.POSIX (POSIXTime)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import MessageId (MessageId)
 
 data Connection = Connection
@@ -15,9 +15,7 @@ data Connection = Connection
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Connection where
-    parseJSON :: JSON.Value -> Parser Connection
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Connection where
-    toJSON :: Connection -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

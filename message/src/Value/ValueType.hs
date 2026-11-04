@@ -1,11 +1,11 @@
 module Value.ValueType where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Text (Text)
 import Expression (Expression)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Scope (Scope)
 
 data ValueType = ValueType
@@ -18,9 +18,7 @@ data ValueType = ValueType
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ValueType where
-    parseJSON :: JSON.Value -> Parser ValueType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON ValueType where
-    toJSON :: ValueType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

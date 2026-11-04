@@ -1,9 +1,9 @@
 module Configuration.Zone where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 
 data Zone
     = SmallcardZone
@@ -11,9 +11,7 @@ data Zone
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Zone where
-    parseJSON :: JSON.Value -> Parser Zone
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Zone where
-    toJSON :: Zone -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

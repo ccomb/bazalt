@@ -1,13 +1,13 @@
 module Commitment.Commitment where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
 import Expression (Expression)
 import Flow (Flow)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Type (Type)
 
 data Commitment = Commitment
@@ -23,9 +23,7 @@ data Commitment = Commitment
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Commitment where
-    parseJSON :: JSON.Value -> Parser Commitment
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Commitment where
-    toJSON :: Commitment -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

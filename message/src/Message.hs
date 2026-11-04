@@ -5,9 +5,8 @@
 module Message where
 
 import Control.Exception (IOException, try)
-import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON, withObject, (.:))
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Aeson qualified as JSON
-import Data.Aeson.Types (Parser)
 import Data.Bifunctor (first)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy (toStrict)
@@ -22,6 +21,7 @@ import Data.Time.Clock.POSIX (POSIXTime)
 import GHC.Generics (Generic)
 import Ident.Fragment (Fragment)
 import Ident.Identifier (fragments)
+import Json (taggedOptions)
 import MessageFlow (MessageFlow)
 import MessageId (MessageId)
 import Metadata (Metadata, flow, from, uuid, when)
@@ -31,19 +31,14 @@ import System.Directory (doesFileExist)
 import System.Exit (exitFailure)
 import System.IO (stderr)
 
-data Message = Message Metadata Payload
+data Message = Message {meta :: Metadata, load :: Payload}
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Message where
-    parseJSON :: JSON.Value -> Parser Message
-    parseJSON value = do
-        meta <- (JSON.parseJSON =<< withObject "Metadata" (.: "meta") value) :: Parser Metadata
-        payl <- (JSON.parseJSON =<< withObject "Payload" (.: "load") value) :: Parser Payload
-        return $ Message meta payl
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Message where
-    toJSON :: Message -> JSON.Value
-    toJSON (Message m p) = JSON.object [("meta", toJSON m), ("load", toJSON p)]
+    toJSON = genericToJSON taggedOptions
 
 payload :: Message -> Payload
 payload (Message _ p) = p

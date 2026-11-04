@@ -46,6 +46,7 @@ library
         , Ident.Identification
         , Ident.Identifier
         , Ident.IdentifierType
+        , Json
         , Message
         , MessageFlow
         , MessageId

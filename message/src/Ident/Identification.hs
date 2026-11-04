@@ -1,10 +1,9 @@
 module Ident.Identification where
 
-import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
-import Data.Aeson qualified as JSON
-import Data.Aeson.Types (Parser, SumEncoding (..))
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 
 data Identification
     = StartsWith String
@@ -13,9 +12,7 @@ data Identification
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Identification where
-    parseJSON :: JSON.Value -> Parser Identification
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Identification where
-    toJSON :: Identification -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

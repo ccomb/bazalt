@@ -1,10 +1,10 @@
 module Configuration.Zone.Fragment where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Text (Text)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Scope
 
 type Name = Text
@@ -24,9 +24,7 @@ data Fragment
     deriving (Eq, Generic, Data, Ord, Show)
 
 instance FromJSON Fragment where
-    parseJSON :: Value -> Parser Fragment
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Fragment where
-    toJSON :: Fragment -> Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions
