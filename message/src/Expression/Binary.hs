@@ -9,7 +9,7 @@ import Json (taggedOptions)
 data Operator
     = Add
     | Multiply
-    | Or {name :: T.Text, desc :: T.Text, choice :: Either String Bool}
+    | Or {name :: T.Text, desc :: T.Text, choice :: Maybe Bool}
     | Otherwise
     deriving (Generic, Data, Show, Eq, Ord)
 

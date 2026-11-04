@@ -5,6 +5,7 @@ module Arbitrary () where
 
 import Agent.Agent (Agent)
 import AgentType.AgentType (AgentType)
+import Calendar (Month, Weekday)
 import Commitment.Commitment (Commitment)
 import CommitmentType.CommitmentType (CommitmentType)
 import Configuration (Configuration)
@@ -16,8 +17,6 @@ import ContractType.ContractType (ContractType)
 import Data.Ratio ((%))
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Time.Calendar.Month (Month (..))
-import Data.Time.Calendar.WeekDate (DayOfWeek (..))
 import Data.Time.Clock.POSIX (POSIXTime)
 import Data.UUID (UUID)
 import Data.UUID qualified as UUID
@@ -74,12 +73,6 @@ instance {-# OVERLAPPING #-} Arbitrary Rational where
     arbitrary = (%) <$> choose (-limit, limit) <*> choose (1, limit)
       where
         limit = 2 ^ (53 :: Int)
-
-instance Arbitrary Month where
-    arbitrary = MkMonth <$> choose (0, 9999 * 12 + 11)
-
-instance Arbitrary DayOfWeek where
-    arbitrary = elements [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
 
 -- Recursive types, whose depth shrinks with the size.
 
@@ -148,6 +141,10 @@ instance Arbitrary Ident.Fragment where arbitrary = genericArbitraryU
 instance Arbitrary Identification where arbitrary = genericArbitraryU
 instance Arbitrary Identifier where arbitrary = genericArbitraryU
 instance Arbitrary IdentifierType where arbitrary = genericArbitraryU
+instance Arbitrary Month where arbitrary = genericArbitraryU
+
+instance Arbitrary Weekday where arbitrary = genericArbitraryU
+
 instance Arbitrary Message where arbitrary = genericArbitraryU
 instance Arbitrary MessageFlow where arbitrary = genericArbitraryU
 instance Arbitrary Metadata where arbitrary = genericArbitraryU

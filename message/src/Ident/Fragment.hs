@@ -1,10 +1,9 @@
 module Ident.Fragment (Fragment (..)) where
 
+import Calendar (Month, Weekday)
 import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Text (Text)
-import Data.Time.Calendar.Month (Month (..))
-import Data.Time.Calendar.WeekDate (DayOfWeek (..))
 import Data.Time.Clock.POSIX (POSIXTime)
 import GHC.Generics
 import Json (taggedOptions)
@@ -18,7 +17,7 @@ data Fragment
     | YY Int
     | MMMM Month
     | MM Month
-    | Weekday DayOfWeek
+    | Weekday Weekday
     | DoM Int
     | Hour Int
     | Minute Int
