@@ -50,6 +50,10 @@ its reason (in French), `docs/glossary.md` defines the REA notions,
   quantity 1 of the resource type "kg of potato"; links between resource
   types (exchange rates, catalogue prices, physical equivalences) are
   *Equivalences*.
+- **No central agent, no absolute direction.** There is no "company that
+  owns the ERP". An event records who provides and who receives; "in",
+  "out", "sale" or "purchase" are derived for the agent looking at it, so
+  the same facts serve every participant (`docs/adr/0015`).
 - **No client name, and no real client configuration, anywhere in this
   repository** — neither in code, docs, tests nor commit messages. Each client
   gets its own private repository. Tests and doc examples are invented cases
