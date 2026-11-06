@@ -1,10 +1,10 @@
 module Expression.Deeplink where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Expression.HardLink as HardLink (HardLink)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Scope (Scope)
 
 data DeepLink
@@ -16,9 +16,7 @@ data DeepLink
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON DeepLink where
-    parseJSON :: JSON.Value -> Parser DeepLink
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON DeepLink where
-    toJSON :: DeepLink -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

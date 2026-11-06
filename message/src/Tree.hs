@@ -1,9 +1,9 @@
 module Tree where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 
 data TreeType
     = -- non hierarchical group (or any tree-like structure)
@@ -15,9 +15,7 @@ data TreeType
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON TreeType where
-    parseJSON :: JSON.Value -> Parser TreeType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON TreeType where
-    toJSON :: TreeType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

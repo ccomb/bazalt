@@ -1,9 +1,9 @@
 module Expression.Unary where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 
 data Operator
     = Neg
@@ -11,9 +11,7 @@ data Operator
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Operator where
-    parseJSON :: JSON.Value -> Parser Operator
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Operator where
-    toJSON :: Operator -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

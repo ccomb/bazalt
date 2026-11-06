@@ -8,9 +8,7 @@ import Configuration (Configuration)
 import Connection
 import Contract.Contract (Contract)
 import ContractType.ContractType (ContractType)
-import Data.Aeson (FromJSON, Options (sumEncoding), ToJSON, defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
-import Data.Aeson qualified as JSON
-import Data.Aeson.Types (Parser, SumEncoding (..))
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import Event.Event (Event)
@@ -21,6 +19,7 @@ import Group.Link as GroupLink (Link)
 import GroupType.GroupType (GroupType)
 import Ident.Identifier (Identifier)
 import Ident.IdentifierType (IdentifierType)
+import Json (payloadOptions)
 import Process.Process (Process)
 import Process.Reconcile (Reconciliation)
 import ProcessType.ProcessType (ProcessType)
@@ -76,9 +75,7 @@ data Payload
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Payload where
-    parseJSON :: JSON.Value -> Parser Payload
-    parseJSON = genericParseJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
+    parseJSON = genericParseJSON payloadOptions
 
 instance ToJSON Payload where
-    toJSON :: Payload -> JSON.Value
-    toJSON = genericToJSON $ defaultOptions{sumEncoding = TaggedObject{tagFieldName = "what", contentsFieldName = "load"}}
+    toJSON = genericToJSON payloadOptions

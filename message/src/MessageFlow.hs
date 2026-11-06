@@ -1,10 +1,10 @@
 module MessageFlow where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Text (Text)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 
 data MessageFlow
     = Requested
@@ -13,9 +13,7 @@ data MessageFlow
     deriving (Eq, Generic, Data, Ord, Show)
 
 instance FromJSON MessageFlow where
-    parseJSON :: Value -> Parser MessageFlow
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = UntaggedValue}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON MessageFlow where
-    toJSON :: MessageFlow -> Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = UntaggedValue}
+    toJSON = genericToJSON taggedOptions

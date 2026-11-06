@@ -1,10 +1,9 @@
 module Service (Service (..)) where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
-import Data.Text qualified as T
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 
 {-
 type MessageType = String
@@ -28,9 +27,7 @@ data Service
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Service where
-    parseJSON :: JSON.Value -> Parser Service
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = UntaggedValue}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Service where
-    toJSON :: Service -> JSON.Value
-    toJSON = JSON.String . T.pack . show
+    toJSON = genericToJSON taggedOptions

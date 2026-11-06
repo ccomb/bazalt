@@ -1,11 +1,9 @@
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module Type where
 
-import Data.Aeson
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import GHC.Generics
+import Json (taggedOptions)
 
 data Type
     = ResourceType
@@ -25,22 +23,7 @@ data Type
     deriving (Generic, Data, Show, Ord, Eq)
 
 instance FromJSON Type where
-    parseJSON = \case
-        "ResourceType" -> return ResourceType
-        "EventType" -> return EventType
-        "AgentType" -> return AgentType
-        "CommitmentType" -> return CommitmentType
-        "ContractType" -> return ContractType
-        "ProcessType" -> return ProcessType
-        "GroupType" -> return GroupType
-        "Resource" -> return Resource
-        "Event" -> return Event
-        "Agent" -> return Agent
-        "Commitment" -> return Commitment
-        "Contract" -> return Contract
-        "Process" -> return Process
-        "Group" -> return Group
-        _ -> fail "Invalid REA Type"
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Type where
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

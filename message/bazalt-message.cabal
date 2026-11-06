@@ -46,6 +46,7 @@ library
         , Ident.Identification
         , Ident.Identifier
         , Ident.IdentifierType
+        , Json
         , Message
         , MessageFlow
         , MessageId
@@ -70,6 +71,7 @@ library
         , aeson >= 2.1
         , bytestring
         , containers
+        , directory
         , scientific
         , time
         , text
@@ -86,5 +88,21 @@ test-suite bazalt-message-test
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
+    other-modules:
+        Arbitrary
+        , JournalSpec
+        , RoundTripSpec
+    build-tool-depends: hspec-discover:hspec-discover
     build-depends:
         base >=4.16
+        , aeson
+        , bazalt-message
+        , bytestring
+        , filepath
+        , temporary
+        , generic-random >=1.5
+        , hspec
+        , QuickCheck
+        , text
+        , time
+        , uuid

@@ -9,7 +9,7 @@ import Data.Map.Strict as Map (Map, delete, empty, insert)
 import Data.Set as Set (Set, empty, insert)
 import Data.Time.Clock.POSIX (POSIXTime, getPOSIXTime)
 import Data.UUID.V4 qualified as UUID (nextRandom)
-import Message (Message (Message), appendMessage, creator, messageId, metadata, payload, readMessages, setCreator, setFlow)
+import Message (Message (Message), appendMessage, creator, loadJournal, messageId, metadata, payload, setCreator, setFlow)
 import MessageFlow (MessageFlow (..))
 import MessageId (MessageId)
 import Metadata (Metadata (..))
@@ -207,7 +207,7 @@ serve (Options msgPath storeHost storePort) = do
     storeChan <- dupChan chan -- output channel to the central message store
     -- Reconstruct the state
     putStrLn "Reconstructing the State..."
-    msgs <- readMessages msgPath
+    msgs <- loadJournal msgPath
     state <- takeMVar stateMV
     let newState = foldl update state msgs -- TODO foldr or strict foldl ?
     putMVar stateMV newState
