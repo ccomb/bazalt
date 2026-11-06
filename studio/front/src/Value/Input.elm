@@ -1,17 +1,17 @@
 module Value.Input exposing (Config, inputValues)
 
+import Ontology.Value.Value exposing (Value)
 import Dict exposing (Dict)
-import Element exposing (..)
-import Expression exposing (Expression(..))
+import Element exposing (Element, column, el, none, paddingXY, row, spacing, text)
 import Expression.Eval as Eval
 import Expression.Input exposing (inputExpression)
-import Expression.Observable exposing (Observable(..))
 import Expression.Rational as Rational
+import Ontology.Expression exposing (Expression(..))
+import Ontology.Expression.Observable exposing (Observable(..))
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
 import State exposing (State)
-import Type exposing (Type)
-import Value.Value as Value exposing (..)
-import View exposing (..)
+import View exposing (h2, p, withDefaultContent)
 
 
 type alias Config msg =

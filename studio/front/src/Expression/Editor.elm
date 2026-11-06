@@ -1,28 +1,32 @@
 module Expression.Editor exposing (Model, Msg, checkExpression, init, update, view, viewSubpage)
 
-import Element exposing (..)
+import Element exposing (Element, alignLeft, alignTop, column, el, fill, height, htmlAttribute, minimum, padding, paddingEach, px, row, shrink, spacing, text, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
-import Expression exposing (Expression(..))
+import Expression
 import Expression.Binary as B
-import Expression.DeepLink as DeepLink
 import Expression.DeepLink.Select
 import Expression.DeepLink.View
-import Expression.Observable as Obs exposing (Observable(..))
+import Expression.Observable as Obs
 import Expression.Rational as Rational
 import Expression.RationalInput as RationalInput
 import Expression.Unary as U
 import Expression.Value.Select
-import Expression.ValueSelection exposing (ValueSelection(..))
 import Html.Attributes as Attr
-import Scope exposing (Scope(..))
+import Ontology.Expression exposing (Expression(..))
+import Ontology.Expression.Binary as B
+import Ontology.Expression.Deeplink as DeepLink
+import Ontology.Expression.Observable exposing (Observable(..))
+import Ontology.Expression.Unary as U
+import Ontology.Expression.ValueSelection exposing (ValueSelection(..))
+import Ontology.Scope exposing (Scope)
+import Scope
 import Shared
 import Util exposing (checkListOne, otherwise)
-import Value.Value as Value exposing (..)
-import View exposing (..)
-import View.Style exposing (..)
+import View exposing (button, zero)
+import View.Style exposing (color, size)
 
 
 type Msg
@@ -94,10 +98,9 @@ update msg model =
             ( { model
                 | stack =
                     model.stack
-                        |> (List.indexedMap Tuple.pair
-                                >> List.filter (Tuple.first >> (/=) stackNum)
-                                >> List.map Tuple.second
-                           )
+                        |> List.indexedMap Tuple.pair
+                        |> List.filter (Tuple.first >> (/=) stackNum)
+                        |> List.map Tuple.second
               }
             , Cmd.none
             )
@@ -203,36 +206,36 @@ view s model =
             ([ buttonUndo model, buttonSwap model ]
                 ++ List.map buttonObservable Obs.allObs
                 ++ List.map (buttonUnaryOperator (List.head model.stack)) U.all
-                ++ List.map (buttonBinaryOperator (Maybe.map2 Tuple.pair (List.head model.stack) ((List.tail >> Maybe.andThen List.head) model.stack))) B.all
+                ++ List.map (buttonBinaryOperator (Maybe.map2 Tuple.pair (List.head model.stack) (Maybe.andThen List.head <| List.tail model.stack))) B.all
             )
         , -- display the stack
           column [ width <| minimum 50 shrink, Border.width 2, padding 10, spacing 5, Border.color color.item.border ] <|
-            List.indexedMap (displayLine s model) model.stack
+            List.indexedMap (displayLine s) model.stack
         ]
 
 
-displayLine : Shared.Model -> Model -> Int -> Expression -> Element Msg
-displayLine s model stackNum expr =
+displayLine : Shared.Model -> Int -> Expression -> Element Msg
+displayLine s stackNum expr =
     row []
         [ row [ height fill, width fill, alignTop, paddingEach { zero | right = 5 } ]
             [ el [ alignLeft ] (button.primary (Ok <| RemoveExpression stackNum) "×")
             ]
-        , editExpression s model stackNum ( [], expr )
+        , editExpression s stackNum ( [], expr )
         ]
 
 
-editExpression : Shared.Model -> Model -> Int -> ( List Int, Expression ) -> Element Msg
-editExpression s model stackNum ( currentPath, expr ) =
+editExpression : Shared.Model -> Int -> ( List Int, Expression ) -> Element Msg
+editExpression s stackNum ( currentPath, expr ) =
     -- used to modify the expression and input default values
     case expr of
         Leaf obs ->
             editObservable s ( stackNum, currentPath ) obs
 
         Unary unary ->
-            row [] [ text (U.toShortString unary.uop), editExpression s model stackNum ( 1 :: currentPath, unary.expr ) ]
+            row [] [ text (U.toShortString unary.uop), editExpression s stackNum ( 1 :: currentPath, unary.expr ) ]
 
         Binary binary ->
-            row [] [ text "( ", editExpression s model stackNum ( 2 :: currentPath, binary.expr1 ), text <| B.toShortString binary.bop, editExpression s model stackNum ( 3 :: currentPath, binary.expr2 ), text " )" ]
+            row [] [ text "( ", editExpression s stackNum ( 2 :: currentPath, binary.expr1 ), text <| B.toShortString binary.bop, editExpression s stackNum ( 3 :: currentPath, binary.expr2 ), text " )" ]
 
 
 editObservable : Shared.Model -> ( Int, List Int ) -> Observable -> Element Msg
@@ -348,7 +351,7 @@ viewSubpage s model =
 
 buttonUndo : Model -> Element Msg
 buttonUndo model =
-    if List.length model.stack == 0 then
+    if List.isEmpty model.stack then
         button.disabled (Err "You cannot undo nothing") "Undo"
 
     else

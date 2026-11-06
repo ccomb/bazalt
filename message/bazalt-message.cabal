@@ -20,6 +20,7 @@ library
     import:           warnings
     exposed-modules:  
         Agent.Agent
+        , Calendar
         , AgentType.AgentType
         , Commitment.Commitment
         , CommitmentType.CommitmentType
@@ -42,10 +43,12 @@ library
         , Group.Group
         , Group.Link
         , GroupType.GroupType
+        , Hierarchy.Type
         , Ident.Fragment
         , Ident.Identification
         , Ident.Identifier
         , Ident.IdentifierType
+        , Json
         , Message
         , MessageFlow
         , MessageId
@@ -60,6 +63,7 @@ library
         , Service
         , Tree
         , Type
+        , Typed.Type
         , Value.Value
         , Value.ValueType
 
@@ -70,12 +74,30 @@ library
         , aeson >= 2.1
         , bytestring
         , containers
+        , directory
         , scientific
         , time
         , text
         , uuid ^>=1.3
         , vector
     hs-source-dirs:   src
+    default-language: GHC2021
+
+-- Random values of every message type, shared by the property tests and
+-- the fixtures of the Haskell to Elm round trip.
+library arbitrary
+    import:           warnings
+    visibility:       public
+    exposed-modules:  Arbitrary
+    build-depends:
+        base >=4.16
+        , bazalt-message
+        , generic-random >=1.5
+        , QuickCheck
+        , text
+        , time
+        , uuid
+    hs-source-dirs:   arbitrary
     default-language: GHC2021
 
 test-suite bazalt-message-test
@@ -86,5 +108,21 @@ test-suite bazalt-message-test
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
+    other-modules:
+        CrossSpec
+        , JournalSpec
+        , RoundTripSpec
+    build-tool-depends: hspec-discover:hspec-discover
     build-depends:
         base >=4.16
+        , aeson
+        , bazalt-message
+        , bazalt-message:arbitrary
+        , bytestring
+        , filepath
+        , temporary
+        , hspec
+        , QuickCheck
+        , text
+        , time
+        , uuid

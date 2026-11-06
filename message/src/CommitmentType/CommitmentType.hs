@@ -1,16 +1,16 @@
 module CommitmentType.CommitmentType where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import Expression (Expression)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Scope (Scope)
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data CommitmentType = CommitmentType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     , providers :: Scope
@@ -21,9 +21,7 @@ data CommitmentType = CommitmentType
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON CommitmentType where
-    parseJSON :: JSON.Value -> Parser CommitmentType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON CommitmentType where
-    toJSON :: CommitmentType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

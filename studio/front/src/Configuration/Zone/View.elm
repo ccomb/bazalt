@@ -1,23 +1,22 @@
 module Configuration.Zone.View exposing (displayZone)
 
-import Configuration as Config exposing (Configuration(..))
-import Configuration.Zone exposing (Zone(..))
-import Configuration.Zone.Fragment exposing (Fragment(..))
+import Configuration as Config
 import Dict
-import Element exposing (..)
 import Expression.Eval as Eval
 import Expression.Rational as Rational
-import Flow exposing (Flow(..))
 import Group.Group as Group
-import Hierarchy.Type as HType
 import Ident.Identifier as Identifier
+import Ontology.Configuration exposing (Configuration(..))
+import Ontology.Configuration.Zone exposing (Zone)
+import Ontology.Configuration.Zone.Fragment exposing (Fragment(..))
+import Ontology.Flow exposing (Flow(..))
+import Ontology.Hierarchy.Type as HType
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import State exposing (State)
-import Type exposing (Type)
-import Typed.Type as TType
 import Util exposing (ifEmpty)
-import View.Style exposing (..)
 
 
 displayZone : State -> Zone -> Type -> Uuid -> String
@@ -36,6 +35,16 @@ displayZone s zone t uuid =
         |> Maybe.withDefault (Uuid.toString uuid)
 
 
+flowZone : State -> Zone -> Flow -> String
+flowZone s zone f =
+    case f of
+        ResourceFlow resource ->
+            displayZone s zone (Type.TType TType.Resource) resource.uuid
+
+        ResourceTypeFlow resourceType ->
+            displayZone s zone (Type.HType HType.ResourceType) resourceType.uuid
+
+
 toValue : State -> Type -> Uuid -> Zone -> Fragment -> String
 toValue s t uuid zone fragment =
     case fragment of
@@ -45,7 +54,7 @@ toValue s t uuid zone fragment =
         GroupIdentifierName groupidentifier ->
             let
                 groupids =
-                    Group.groupsOf s.grouped uuid |> List.map (\guuid -> Identifier.fromUuid guuid s.identifiers |> Dict.toList) |> List.concat |> Dict.fromList
+                    Group.groupsOf s.grouped uuid |> List.concatMap (\guuid -> Identifier.fromUuid guuid s.identifiers |> Dict.toList) |> Dict.fromList
             in
             Identifier.select groupidentifier.name groupids |> List.map Identifier.toValue |> String.join ", "
 
@@ -56,8 +65,8 @@ toValue s t uuid zone fragment =
             in
             Maybe.map (displayZone s zone (Type.TType TType.Group)) parent |> Maybe.withDefault ""
 
-        Fixed string ->
-            string
+        Fixed fixed ->
+            fixed.string
 
         Quantity ->
             case t of
@@ -73,22 +82,11 @@ toValue s t uuid zone fragment =
             (case t of
                 Type.TType TType.Commitment ->
                     Dict.get (Uuid.toString uuid) s.commitments
-                        |> Maybe.map
-                            (.flow
-                                >> (\f ->
-                                        case f of
-                                            ResourceFlow resource ->
-                                                displayZone s zone (Type.TType TType.Resource) resource.uuid
-
-                                            ResourceTypeFlow resourceType ->
-                                                displayZone s zone (Type.HType HType.ResourceType) resourceType.uuid
-                                   )
-                            )
+                        |> Maybe.map (.flow >> flowZone s zone)
 
                 Type.TType TType.Event ->
                     Dict.get (Uuid.toString uuid) s.events
-                        |> Maybe.map
-                            (.resource >> displayZone s zone (Type.TType TType.Resource))
+                        |> Maybe.map (.flow >> flowZone s zone)
 
                 _ ->
                     Nothing

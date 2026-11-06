@@ -1,15 +1,16 @@
 module Configuration.Zone.ListPage exposing (Flags, Model, Msg, match, page)
 
-import Configuration exposing (Configuration)
+import Configuration
 import Configuration.View
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
-import Payload
+import Element exposing (Element, none, spacing, text, wrappedRow)
+import Ontology.Configuration exposing (Configuration)
+import Ontology.Payload as Payload
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
-import View exposing (..)
+import View exposing (View, button, closeMenu, flatContainer, p, withDefaultContent)
 import View.Smallcard exposing (clickableRemovableCard)
 
 

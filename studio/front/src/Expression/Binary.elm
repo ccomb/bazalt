@@ -1,16 +1,8 @@
-module Expression.Binary exposing (..)
+module Expression.Binary exposing (all, eval, toShortString, toString)
 
 import Expression.Rational as R exposing (Rational)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ontology.Expression.Binary exposing (Operator(..))
 import Util exposing (otherwiseR)
-
-
-type Operator
-    = Add
-    | Multiply
-    | Or { name : String, desc : String, choice : Result String Bool }
-    | Otherwise
 
 
 toString : Operator -> String
@@ -41,6 +33,7 @@ eval operator res1 res2 =
         Or data ->
             -- one can choose either even if one fails
             data.choice
+                |> Result.fromMaybe "No choice made"
                 |> Result.andThen
                     (\c ->
                         if c then
@@ -56,7 +49,7 @@ eval operator res1 res2 =
 
 or : String -> String -> Maybe Bool -> Operator
 or n d c =
-    Or { name = n, desc = d, choice = Result.fromMaybe "No choice made" c }
+    Or { name = n, desc = d, choice = c }
 
 
 toShortString : Operator -> String
@@ -78,47 +71,3 @@ toShortString o =
 all : List Operator
 all =
     [ Add, Multiply, or "" "" Nothing, Otherwise ]
-
-
-encode : Operator -> Encode.Value
-encode op =
-    case op of
-        Add ->
-            Encode.object [ ( "type", Encode.string "Add" ) ]
-
-        Multiply ->
-            Encode.object [ ( "type", Encode.string "Multiply" ) ]
-
-        Otherwise ->
-            Encode.object [ ( "type", Encode.string "Otherwise" ) ]
-
-        Or data ->
-            Encode.object
-                [ ( "type", Encode.string "type" )
-                , ( "name", Encode.string data.name )
-                , ( "desc", Encode.string data.desc )
-                , ( "choice", Result.map Encode.bool data.choice |> Result.withDefault Encode.null )
-                ]
-
-
-decoder : Decoder Operator
-decoder =
-    Decode.field "type" Decode.string
-        |> Decode.andThen
-            (\s ->
-                case s of
-                    "Add" ->
-                        Decode.succeed Add
-
-                    "Multiply" ->
-                        Decode.succeed Multiply
-
-                    "Or" ->
-                        Decode.map3 or (Decode.field "name" Decode.string) (Decode.field "desc" Decode.string) (Decode.field "choice" (Decode.nullable Decode.bool))
-
-                    "Otherwise" ->
-                        Decode.succeed Otherwise
-
-                    _ ->
-                        Decode.fail "Unknown Unary Operator"
-            )

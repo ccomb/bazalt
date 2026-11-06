@@ -1,15 +1,11 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Scope where
 
-import Data.Aeson (FromJSON, ToJSON, parseJSON, toJSON, withObject, (.:), (.=))
-import Data.Aeson qualified as JSON
-import Data.Aeson.Types (Parser)
-import Data.Data (Data, toConstr)
-import Data.Text (Text)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
+import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
 import Ident.Identification as Identification (Identification)
+import Json (taggedOptions)
 import Type (Type)
 
 data Scope
@@ -35,40 +31,7 @@ data Scope
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Scope where
-    parseJSON :: JSON.Value -> Parser Scope
-    parseJSON =
-        withObject
-            "Scope"
-            ( \o -> do
-                s <- o .: "type" :: Parser Text
-                case s of
-                    "Empty" -> return Empty
-                    "Anything" -> return Anything
-                    "IsItem" -> IsItem <$> o .: "what" <*> o .: "uuid"
-                    "HasUserType" -> HasUserType <$> o .: "what" <*> o .: "uuid"
-                    "HasType" -> do
-                        t <- o .: "what"
-                        HasType <$> parseJSON t
-                    "And" -> And <$> o .: "scope1" <*> o .: "scope2"
-                    "Or" -> Or <$> o .: "scope1" <*> o .: "scope2"
-                    "Not" -> Not <$> o .: "scope"
-                    "Identified" -> do
-                        v <- o .: "value"
-                        Identified <$> v .: "value"
-                    _ -> fail "Invalid Scope"
-            )
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Scope where
-    toJSON :: Scope -> JSON.Value
-    toJSON scope =
-        let constr = show $ toConstr scope
-         in case scope of
-                Empty -> JSON.object ["type" .= constr]
-                Anything -> JSON.object ["type" .= constr]
-                IsItem what uuid -> JSON.object ["type" .= constr, "what" .= what, "uuid" .= uuid]
-                HasUserType what uuid -> JSON.object ["type" .= constr, "what" .= what, "uuid" .= uuid]
-                HasType what -> JSON.object ["type" .= constr, "what" .= what]
-                And scope1 scope2 -> JSON.object ["type" .= constr, "scope1" .= toJSON scope1, "scpe1" .= toJSON scope2]
-                Or scope1 scope2 -> JSON.object ["type" .= constr, "scope1" .= toJSON scope1, "scpe1" .= toJSON scope2]
-                Not s -> JSON.object ["type" .= constr, "scope" .= toJSON s]
-                Identified ident -> JSON.object ["type" .= constr, "value" .= toJSON ident]
+    toJSON = genericToJSON taggedOptions

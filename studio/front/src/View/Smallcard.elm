@@ -1,20 +1,20 @@
-module View.Smallcard exposing (clickableCard, clickableRemovableCard, halfCard, itemClickableCard, tClickableCard, tClickableRemovableCard, viewHalfCard)
+module View.Smallcard exposing (clickableCard, clickableRemovableCard, halfCard, tClickableCard, tClickableRemovableCard, viewHalfCard)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import Dict
-import Element exposing (..)
+import Element exposing (Element, alignLeft, alignRight, column, el, fill, htmlAttribute, minimum, mouseOver, none, padding, paddingXY, pointer, row, spacing, text, width)
 import Element.Background as Background
 import Element.Events exposing (onClick)
 import Element.Font as Font
 import Html.Attributes as Attr
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Type exposing (Type)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import State exposing (State)
-import Type exposing (Type)
+import Type
 import Util exposing (third)
-import View exposing (..)
-import View.Style exposing (..)
+import View exposing (button)
+import View.Style exposing (color, itemHoverstyle, size)
 
 
 
@@ -60,19 +60,6 @@ viewHalfCard s maybeOnDelete t uuid =
             (text <| displayZone s SmallcardZone t uuid)
         , Maybe.map (\onDelete -> button.secondary (Ok onDelete) "×") maybeOnDelete |> Maybe.withDefault none
         ]
-
-
-itemClickableCard : State -> (Scope -> msg) -> Type -> Uuid -> Element msg
-itemClickableCard s onInput t uuid =
-    clickableCard
-        (onInput (IsItem t uuid))
-        (text <| displayZone s SmallcardZone t uuid)
-        (Dict.get (Uuid.toString uuid) s.types
-            |> Maybe.andThen third
-            |> Maybe.map (\puuid -> displayZone s SmallcardZone {- TODO check? (Identifier.fromUuid puuid ids) -} (Type.toHierarchic t) puuid)
-            |> Maybe.withDefault ""
-            |> text
-        )
 
 
 tClickableCard : State -> msg -> Type -> Uuid -> Element msg

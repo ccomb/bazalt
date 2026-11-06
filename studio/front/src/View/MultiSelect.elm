@@ -1,12 +1,12 @@
 module View.MultiSelect exposing (multiSelect)
 
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, el, fill, height, minimum, padding, paddingEach, paragraph, px, row, shrink, spacing, text, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
-import View exposing (..)
+import View exposing (button, h2, p, withDefaultContent, zero)
 import View.Smallcard exposing (clickableCard)
-import View.Style exposing (..)
+import View.Style exposing (color, size)
 
 
 type alias Config model item msg =

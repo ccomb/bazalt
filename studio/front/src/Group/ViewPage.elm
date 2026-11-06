@@ -1,26 +1,26 @@
-module Group.ViewPage exposing (Flags, Model, Msg(..), match, page)
+module Group.ViewPage exposing (Flags, Model, Msg, match, page)
 
+import Configuration.Zone.View exposing (displayZone)
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, text)
 import Group.View exposing (displayGroupTable)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
 import Ident.View exposing (displayIdentifierDict)
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Hierarchy.Type as HType
+import Ontology.Scope as Scope exposing (Scope)
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
 import Route exposing (Route, redirect)
-import Scope as Scope exposing (Scope)
 import Scope.View
 import Shared
 import Spa.Page
-import Type exposing (Type)
-import Typed.Type as TType
 import Util exposing (third)
 import Value.Valuable exposing (getValues)
 import Value.View exposing (displayValueDict)
-import View exposing (..)
-import Configuration.Zone.View exposing (displayZone)
-import Configuration.Zone exposing (Zone(..))
+import View exposing (View, button, closeMenu, floatingContainer, h1, h2)
 
 
 mainTType : Type
@@ -96,10 +96,10 @@ update : Shared.Model -> Msg -> Model -> ( Model, Effect Shared.Msg Msg )
 update s msg model =
     case msg of
         Close ->
-            ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.Group (Route.List {type_ = (Maybe.map Uuid.toString model.type_)}) )
+            ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.Group (Route.List { type_ = Maybe.map Uuid.toString model.type_ }) )
 
         Edit ->
-            ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.Group <| Route.Edit {uuid = Uuid.toString model.uuid, type_ = Maybe.map Uuid.toString model.type_} )
+            ( model, Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.Group <| Route.Edit { uuid = Uuid.toString model.uuid, type_ = Maybe.map Uuid.toString model.type_ } )
 
 
 view : Model -> View Msg

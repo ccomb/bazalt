@@ -1,17 +1,18 @@
 module Expression.Value.Select exposing (Model, Msg(..), SelectedValue, init, update, view)
 
 import Dict
-import Element exposing (..)
+import Element exposing (Element, column, fill, none, padding, spacing, text, width, wrappedRow)
 import Element.Border as Border
-import Expression.ValueSelection exposing (ValueSelection(..))
+import Ontology.Expression.ValueSelection exposing (ValueSelection(..))
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
+import Scope
 import Scope.View exposing (selectScope)
 import Shared
-import Type exposing (Type)
-import View exposing (..)
+import View exposing (button, floatingContainer, h2, withDefaultContent)
 import View.Smallcard exposing (clickableCard, halfCard)
-import View.Style exposing (..)
+import View.Style exposing (color)
 
 
 type SelectedValue

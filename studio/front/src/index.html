@@ -126,15 +126,15 @@
                     app.ports.messagesReader.send(messages);
                 }
                 openCursor.onerror = () => {
-                    const err = "IndexedDB transaction error while reading messages:" + transaction.error;
+                    const err = "IndexedDB transaction error while reading messages:" + openCursor.error;
                     console.log(err);
-                    app.ports.wsSendStatus.send({meta: {flow: {type: "Error", value: err}, uuid: "00000000-0000-0000-0000-000000000000", when: Date.now}, load: {what: "Null"}});
+                    app.ports.ioError.send(err);
                 }
             }
             request.onerror = (e) => {
                 const err = "IndexedDB could not be opened to read messages. Please note that the browser private mode or some browser extensions can be the cause of this error:\n\n" + request.error;
                 console.log(err);
-                app.ports.wsSendStatus.send({meta: {flow: {type: "Error", value: err}, uuid: "00000000-0000-0000-0000-000000000000", when: Date.now}, load: {what: "Null"}});
+                app.ports.ioError.send(err);
             }
         });
 

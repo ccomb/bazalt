@@ -1,7 +1,7 @@
 module View exposing (View, button, closeMenu, flatContainer, floatingContainer, floatingContainer2, h1, h2, h3, hamburger, lenToPx, map, notFound, onEnter, p, separator, switch, viewSelector, withDefaultContent, zero)
 
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Attribute, Color, Element, alignLeft, alignRight, alignTop, centerX, centerY, column, el, fill, height, htmlAttribute, inFront, mapAttribute, mouseOver, none, padding, paddingEach, paragraph, pointer, px, row, spacing, text, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
@@ -14,7 +14,7 @@ import Json.Decode as Decode
 import Route exposing (Route)
 import Shared
 import Util exposing (flip)
-import View.Style as Style exposing (..)
+import View.Style as Style exposing (Menu(..), color, darken, shadowStyle, size)
 import View.Type as ViewType
 
 

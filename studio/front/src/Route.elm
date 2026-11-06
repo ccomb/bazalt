@@ -1,16 +1,16 @@
-module Route exposing (EntitySegment(..), Route(..), ViewSegment(..), allBehaviours, allEntities, allTypes, entityToDesc, goBack, isMenu, redirect, redirectAdd, setHash, toColor, toDesc, toRoute, toString, toTypeFilter)
+module Route exposing (EntitySegment(..), Route(..), ViewSegment(..), allBehaviours, allTypes, goBack, isMenu, redirect, redirectAdd, toColor, toDesc, toRoute, toString, toTypeFilter)
 
 import Browser.Navigation as Nav
-import Configuration as Config exposing (Configuration(..))
-import Configuration.Zone exposing (Zone(..))
+import Configuration as Config
 import Configuration.Zone.View exposing (displayZone)
 import Dict
 import Element exposing (Color, rgb255)
-import Hierarchy.Type as HType
+import Ontology.Configuration exposing (Configuration(..))
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Hierarchy.Type as HType
+import Ontology.Type as Type exposing (Type)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import State exposing (State)
-import Type exposing (Type)
 import Url exposing (Url, percentEncode)
 import Url.Builder as Builder exposing (QueryParameter, Root(..), absolute)
 import Url.Parser as Parser exposing ((</>), (<?>), Parser, fragment, map, oneOf, s, top)
@@ -360,21 +360,6 @@ viewToCustomUrl v =
 and : CustomUrl -> CustomUrl -> CustomUrl
 and (CustomUrl p1s q1s mh1) (CustomUrl p2s q2s mh2) =
     CustomUrl (p1s ++ p2s) (q1s ++ q2s) (mh2 |> otherwise mh1)
-
-
-setHash : Route -> Maybe Int -> Route
-setHash route stepnb =
-    case route of
-        Entity e v ->
-            case v of
-                Add p ->
-                    Entity e <| Add { p | step = Maybe.map String.fromInt stepnb }
-
-                _ ->
-                    route
-
-        _ ->
-            route
 
 
 customToString : CustomUrl -> String

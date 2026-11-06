@@ -7,3 +7,6 @@ packages:
     store
     ident
     dumb
+    gen-elm
+
+tests: True

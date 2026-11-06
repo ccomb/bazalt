@@ -3,23 +3,23 @@ module Shared exposing (Model, Msg(..), dispatch, dispatchMany, identity, init, 
 import Browser.Navigation as Nav
 import Dict
 import Effect exposing (Effect)
-import Html exposing (time)
 import IOStatus exposing (IOStatus(..))
 import Json.Decode as Decode exposing (decodeString, decodeValue, errorToString)
 import Json.Encode as Encode
-import Message exposing (Message(..), getTime)
-import MessageFlow exposing (MessageFlow(..))
-import Payload exposing (Payload(..))
+import Message exposing (getTime)
+import Ontology.Message as Message exposing (Message)
+import Ontology.MessageFlow exposing (MessageFlow(..))
+import Ontology.Payload exposing (Payload(..))
+import Ontology.Service exposing (Service(..))
 import Prng.Uuid as Uuid exposing (Uuid)
 import Process
 import Random.Pcg.Extended as Random exposing (Seed, initialSeed)
 import Route exposing (Route)
-import Service exposing (Service(..))
 import State exposing (State)
 import Task
 import Time exposing (millisToPosix, posixToMillis)
 import Url exposing (Url)
-import View.Style exposing (Menu(..), WindowSize, isMobile, size)
+import View.Style exposing (Menu(..), WindowSize, isMobile)
 import Websocket as WS exposing (WSStatus(..), wsConnect, wsSend)
 
 
@@ -70,6 +70,7 @@ type Msg
     | GotZone Time.Zone
     | GotZoneName Time.ZoneName
     | GotNewSeed (List Int)
+    | IOFailed String
 
 
 type alias Flags =
@@ -89,7 +90,7 @@ flagsDecoder =
         (Decode.field "esversion" Decode.int)
         (Decode.field "seed" Decode.int)
         (Decode.field "seedExtension" (Decode.list Decode.int))
-        (Decode.field "url" Decode.string |> Decode.andThen (Url.fromString >> Decode.succeed))
+        (Decode.field "url" Decode.string |> Decode.map Url.fromString)
         (Decode.field "windowSize"
             (Decode.map2 WindowSize (Decode.field "w" Decode.int) (Decode.field "h" Decode.int))
         )
@@ -265,7 +266,7 @@ update msg model =
             )
 
         MessagesRead results ->
-            case decodeValue (Decode.list Message.decoder) results of
+            case decodeValue (Decode.list Message.messageDecoder) results of
                 Ok messages ->
                     let
                         newstate =
@@ -317,36 +318,36 @@ update msg model =
                     List.map
                         (\pm ->
                             WS.wsSend <|
-                                Message.encode pm
+                                Message.messageEncoder pm
                         )
                         (model.state.pendingMessages
                             |> Dict.values
                             |> List.filter
-                                (\(Message meta _) -> meta.flow == Requested)
+                                (.meta >> .flow >> (==) Requested)
                         )
-                        ++ [ WS.wsSend <| Message.encode message ]
+                        ++ [ WS.wsSend <| Message.messageEncoder message ]
             )
 
         StoreMessagesToSend messages ->
             ( { model | currentSeed = newSeed, iostatus = ESStoring }
-            , Cmd.batch <| List.map (Message.encode >> Message.storeMessagesToSend) <| messages
+            , Cmd.batch <| List.map (Message.messageEncoder >> Message.storeMessagesToSend) <| messages
             )
 
         MessagesStoredTosend msgstr ->
-            case decodeValue Message.decoder msgstr of
-                Ok (Message m p) ->
+            case decodeValue Message.messageDecoder msgstr of
+                Ok stored ->
                     if model.wsstatus == WSOpen then
                         ( { model | iostatus = ESReading }
                         , Cmd.batch
                             (Message.readMessages Encode.null
                                 :: -- send the new message and the pending Requested ones
-                                   (List.map (\pending -> wsSend <| Message.encode pending) <|
+                                   (List.map (\pending -> wsSend <| Message.messageEncoder pending) <|
                                         List.filter
-                                            (\(Message meta _) -> meta.flow == Requested)
+                                            (.meta >> .flow >> (==) Requested)
                                         <|
                                             Dict.values model.state.pendingMessages
                                    )
-                                ++ [ wsSend <| Message.encode (Message m p) ]
+                                ++ [ wsSend <| Message.messageEncoder stored ]
                             )
                         )
 
@@ -361,12 +362,12 @@ update msg model =
 
         MessageSent message ->
             case
-                decodeValue Message.decoder message
+                decodeValue Message.messageDecoder message
             of
-                Ok (Message m p) ->
-                    case m.flow of
-                        Error ->
-                            ( { model | iostatus = IOError "Error MessageFlow received" }, Cmd.none )
+                Ok sent ->
+                    case sent.meta.flow of
+                        Error reason ->
+                            ( { model | iostatus = IOError <| "Error MessageFlow received: " ++ reason }, Cmd.none )
 
                         _ ->
                             let
@@ -375,7 +376,7 @@ update msg model =
                             in
                             ( { model
                                 | iostatus = IOIdle "Just sent a message"
-                                , state = { state | pendingMessages = Dict.remove (Message.compare (Message m p)) state.pendingMessages }
+                                , state = { state | pendingMessages = Dict.remove (Message.compare sent) state.pendingMessages }
                               }
                             , Cmd.none
                             )
@@ -384,23 +385,26 @@ update msg model =
                     ( { model | currentSeed = newSeed, iostatus = IOError <| "Error getting flow of message: " ++ errorToString err }, Cmd.none )
 
         MessagesReceived str ->
-            case decodeString Message.decoder str of
-                Ok ((Message _ p) as message) ->
+            case decodeString Message.messageDecoder str of
+                Ok message ->
                     ( { model
                         | wsstatus = WSOpen
                         , iostatus = ESStoring
                       }
-                    , case p of
+                    , case message.load of
                         InitiatedConnection _ ->
                             Cmd.none
 
                         _ ->
                             -- TODO rename to singular
-                            Message.storeMessages <| Message.encode message
+                            Message.storeMessages <| Message.messageEncoder message
                     )
 
                 Err err ->
                     ( { model | currentSeed = newSeed, iostatus = IOError <| "Error decoding received messages:\n" ++ errorToString err }, Cmd.none )
+
+        IOFailed err ->
+            ( { model | iostatus = IOError err }, Cmd.none )
 
         GotZone zone ->
             ( { model | zone = zone }, Cmd.none )
@@ -431,7 +435,7 @@ initiateConnection uuid model =
                     { uuid = uuid, when = t, from = [ Front ], flow = Requested }
                     (InitiatedConnection
                         { lastMessageTime = model.state.lastMessageTime
-                        , uuids = model.state.uuids
+                        , uuids = Dict.values model.state.uuids
                         }
                     )
             )
@@ -459,14 +463,14 @@ dispatch model payload =
 dispatchMany : Model -> List Payload -> Effect Msg msg
 dispatchMany model payloads =
     -- dispatch several messages
-    let
-        ( newUuid, newSeed ) =
-            Random.step Uuid.generator model.currentSeed
-    in
     Effect.fromSharedCmd <|
         Task.perform StoreMessagesToSend <|
             Task.map
                 (\time ->
+                    let
+                        ( newUuid, newSeed ) =
+                            Random.step Uuid.generator model.currentSeed
+                    in
                     uuidMerger <|
                         List.reverse <|
                             List.foldl (uuidAggregator newSeed) [] <|
@@ -511,7 +515,11 @@ uuidMerger : List ( Uuid, Seed, Message ) -> List Message
 uuidMerger tuples =
     -- merge the new uuids into the messages
     List.map
-        (\( uuid, _, Message metadata payload ) ->
-            Message { metadata | uuid = uuid } payload
+        (\( uuid, _, message ) ->
+            let
+                metadata =
+                    message.meta
+            in
+            { message | meta = { metadata | uuid = uuid } }
         )
         tuples

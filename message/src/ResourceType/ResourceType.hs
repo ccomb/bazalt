@@ -1,23 +1,21 @@
 module ResourceType.ResourceType where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
-import Type (Type)
+import Json (taggedOptions)
+import Hierarchy.Type qualified as HType
 
 data ResourceType = ResourceType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     }
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ResourceType where
-    parseJSON :: JSON.Value -> Parser ResourceType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON ResourceType where
-    toJSON :: ResourceType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

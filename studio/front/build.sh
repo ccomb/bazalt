@@ -4,7 +4,7 @@ set -e
 
 # don't forget the CHANGELOG
 export APPVERSION=18
-export IDBVERSION=49 ### IndexedDB version. Upgrade when a json format change occurs ###
+export IDBVERSION=50 ### IndexedDB version. Upgrade when a json format change occurs ###
 
 # change to the dir of this script
 pushd $( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -12,6 +12,9 @@ pushd $( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # don't build if the changelog is not up to date
 grep "## version ${APPVERSION} --" ../CHANGELOG.md \
     || { echo "Please first feed the changelog for version ${APPVERSION}"; if [ "$1" == "-o" ]; then exit 1; fi }
+
+# the committed Elm ontology must match the Haskell types
+../../gen-elm/check.sh
 
 # update the static dir
 echo "Updating the static dir"

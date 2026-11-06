@@ -8,7 +8,7 @@ Bazalt is an ERP engine based on the REA ontology (Resources, Events, Agents),
 in Haskell (GHC 9.12.4) and Elm (0.19.2), with no database — pure event sourcing
 over append-only JSON-lines files, state rebuilt in memory. The goal: model any
 organization by configuration alone, no business-specific code. The product
-positioning: **AI builds the ontology and the configuration; the code never
+positioning: **AI builds the configuration from the ontology; the code never
 changes.** Every AI action is a message in the event log — visible, dated,
 attributed, reversible.
 
@@ -17,13 +17,56 @@ ideas first developed by hand in the `modelyz-*` repositories
 (github.com/ccomb). Design references (REA notes, the Hruby patterns book,
 a real-world test case) live in the unversioned parent workspace directory.
 
+## Vision
+
+Read `docs/` before any design change: `docs/adr/` records each decision and
+its reason (in French), `docs/glossary.md` defines the REA notions,
+`docs/metier-vers-rea.md` maps business words to them, and
+`docs/feuille-de-route.md` gives the order of work.
+
+- **No client notion in the code.** "Member", "mango purée" or "FOB incoterm"
+  live only in configuration: types, identifiers, values, groups, rules. A
+  client need that configuration cannot express is a gap in the REA
+  ontology, filled by a general REA notion, never by a special case.
+- **`message` is the ontology and its guardian.** It holds the REA types,
+  their JSON codecs and the conversion of each message to its type. A message
+  that violates the ontology cannot be built — this is what keeps a user or
+  an AI agent from drifting into chaos.
+- **Capabilities are optional services**, each a client of `store`, plugged
+  in only when a solution needs them, so that no engine grows too big.
+  `store` persists and orchestrates, `ident` assigns identifiers, `dumb` is
+  the default processor; balances, rules and external connectors come next.
+- **Every interface is autonomous and works offline.** `studio` and any
+  client UI keep their own event store and resync on reconnect; an invoice
+  entered offline gets its number from `ident` at that moment.
+- **`studio` is the configuration tool**, enough to try a solution, not a
+  client's final UI. Client UIs are built per client, on top of the
+  capabilities.
+- **One journal** holds configuration facts and business facts in arrival
+  order. Facts are validated in two stages: by the `message` types (always,
+  offline included), then by a capability at sync time against the rest of
+  the journal. A refused fact comes back as `Error` with its reason.
+- **A currency is a resource type, not a unit.** "1 kg of potato" is the
+  quantity 1 of the resource type "kg of potato"; links between resource
+  types (exchange rates, catalogue prices, physical equivalences) are
+  *Equivalences*.
+- **No central agent, no absolute direction.** There is no "company that
+  owns the ERP". An event records who provides and who receives; "in",
+  "out", "sale" or "purchase" are derived for the agent looking at it, so
+  the same facts serve every participant (`docs/adr/0015`).
+- **No client name, and no real client configuration, anywhere in this
+  repository** — neither in code, docs, tests nor commit messages. Each client
+  gets its own private repository. Tests and doc examples are invented cases
+  inspired by real ones ("a fruit importer", "a members' association").
+
 ## Monorepo layout
 
 - `message/` — shared Haskell library: message and REA domain types. All services depend on it.
 - `store/` — central event store and message router. WS server on **8081**. The only service others connect to.
-- `studio/` — the app: `back/` (Haskell, HTTP + WS on **8080**, serves the SPA and relays browser ↔ store) and `front/` (Elm SPA).
+- `studio/` — the configuration tool: `back/` (Haskell, HTTP + WS on **8080**, serves the SPA and relays browser ↔ store) and `front/` (Elm SPA).
 - `ident/` — generates identifier sequences. Pure WS client of store.
-- `dumb/` — placeholder processor: acknowledges every non-ident message as `Processed`. Pure WS client of store.
+- `dumb/` — default processor: marks as `Processed` every message no other capability handles, so that each `Requested` message gets its answer. Pure WS client of store.
+- `docs/` — design decisions, glossaries and roadmap (French).
 
 ## Commands
 
@@ -34,6 +77,8 @@ cabal build store             # any single package, from the root
 studio/rundev.sh              # build front + back, then run studio on :8080
 studio/front/rundev.sh        # Elm live-reload via elm-go on :8080
 studio/front/review.sh        # elm-review --fix-all
+gen-elm/check.sh              # generated Elm matches the Haskell types, studio compiles
+gen-elm/roundtrip.sh          # random messages survive Haskell → Elm → Haskell
 ./build.docker.sh             # docker image (two-stage, COPY of local sources)
 ./run.compose.sh              # docker compose up with docker-compose.local.yml
 ```
@@ -91,11 +136,17 @@ configuration-driven: `Configuration/Zone.elm` maps identifier fragments to
 display zones per `Scope` — this is how the UI adapts to a modeled business
 without code.
 
-**Invariant to protect**: `message/src/Payload.hs` and
-`studio/front/src/Payload.elm` (plus the surrounding types: `MessageFlow`,
-`Metadata`, `Service`) are hand-kept mirrors — any change on one side must land
-on the other, and usually means an `IDBVERSION` bump. Known asymmetry: Elm's
-`MessageFlow.Error` carries no payload while Haskell's carries `Text`.
+**Invariant to protect**: the ontology is defined once, in `message`
+(`docs/adr/0010`). The Elm types and JSON codecs under
+`studio/front/generated/Ontology/` are generated from it: change the Haskell
+types, then run `cabal run exe:bazalt-gen-elm -- studio/front/generated`, and
+commit the result. Never edit `generated/` by hand; only
+`studio/front/src/Ontology/Prim.elm` (instants and rationals) is hand-written.
+Bump `IDBVERSION` whenever the JSON changes.
+
+**Known gap**: the services drop `Error` messages (no branch for them in the
+store's `routeMessage` nor in `studio/back`), so a refusal does not reach the
+studio yet. The studio shows the reason of any `Error` message it receives.
 
 **Known rough edge**: routing in the store is hardcoded per payload
 constructor; `message/src/Service.hs` contains a commented-out

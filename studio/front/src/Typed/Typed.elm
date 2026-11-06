@@ -2,8 +2,8 @@ module Typed.Typed exposing (isAscendantOf)
 
 import Dict exposing (Dict)
 import Hierarchy.Hierarchic as H
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
-import Type exposing (Type)
 
 
 

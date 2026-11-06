@@ -1,23 +1,21 @@
 module Agent.Agent where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
-import Type (Type)
+import Json (taggedOptions)
+import Typed.Type qualified as TType
 
 data Agent = Agent
-    { what :: Type
+    { what :: TType.Type
     , uuid :: UUID
     , type_ :: UUID
     }
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Agent where
-    parseJSON :: JSON.Value -> Parser Agent
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Agent where
-    toJSON :: Agent -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

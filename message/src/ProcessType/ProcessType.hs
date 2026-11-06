@@ -1,15 +1,15 @@
 module ProcessType.ProcessType where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Set (Set)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
-import Type (Type)
+import Json (taggedOptions)
+import Hierarchy.Type qualified as HType
 
 data ProcessType = ProcessType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     , eventTypes :: Set UUID
@@ -17,9 +17,7 @@ data ProcessType = ProcessType
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON ProcessType where
-    parseJSON :: JSON.Value -> Parser ProcessType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON ProcessType where
-    toJSON :: ProcessType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

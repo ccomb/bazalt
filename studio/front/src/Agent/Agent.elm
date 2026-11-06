@@ -1,20 +1,12 @@
-module Agent.Agent exposing (Agent, decoder, encode, providerOf, providersOf, receiverOf, receiversOf)
+module Agent.Agent exposing (providerOf, providersOf, receiverOf, receiversOf)
 
 import Dict exposing (Dict)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ontology.Agent.Agent exposing (Agent)
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import Scope.State as Scope
-import Type exposing (Type)
-import Typed.Type as TType
-
-
-type alias Agent =
-    { what : TType.Type
-    , uuid : Uuid
-    , type_ : Uuid
-    }
 
 
 providersOf : Dict String ( Uuid, Type, Maybe Uuid ) -> Dict String { a | providers : Scope } -> Dict String Agent -> Uuid -> List Uuid
@@ -67,20 +59,3 @@ receiverOf entities agents uuid =
                     |> List.map .uuid
             )
         |> Maybe.withDefault []
-
-
-encode : Agent -> Encode.Value
-encode a =
-    Encode.object <|
-        [ ( "what", TType.encode a.what )
-        , ( "uuid", Uuid.encode a.uuid )
-        , ( "type_", Uuid.encode a.type_ )
-        ]
-
-
-decoder : Decoder Agent
-decoder =
-    Decode.map3 Agent
-        (Decode.field "what" TType.decoder)
-        (Decode.field "uuid" Uuid.decoder)
-        (Decode.field "type_" Uuid.decoder)

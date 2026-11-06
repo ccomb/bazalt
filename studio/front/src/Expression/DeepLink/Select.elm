@@ -1,18 +1,20 @@
 module Expression.DeepLink.Select exposing (Model, Msg(..), init, update, view)
 
 import Dict
-import Element exposing (..)
+import Element exposing (Element, column, fill, padding, spacing, text, width, wrappedRow)
 import Element.Border as Border
-import Expression.DeepLink as DL exposing (DeepLink(..))
+import Expression.DeepLink as DL
 import Expression.DeepLink.View
-import Expression.HardLink as HL exposing (HardLink)
-import Scope exposing (Scope)
+import Expression.HardLink as HL
+import Ontology.Expression.Deeplink exposing (DeepLink(..))
+import Ontology.Expression.HardLink exposing (HardLink)
+import Ontology.Scope exposing (Scope)
 import Scope.State exposing (containsScope)
 import Scope.View
 import Shared
-import View exposing (..)
+import View exposing (button, floatingContainer, h2, p, withDefaultContent)
 import View.Smallcard exposing (clickableCard)
-import View.Style exposing (..)
+import View.Style exposing (color)
 
 
 type alias Model =

@@ -1,33 +1,36 @@
-module ProcessType.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module ProcessType.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
-import Configuration as Config exposing (Configuration(..))
-import Configuration.Zone exposing (Zone(..))
+import Configuration as Config
 import Configuration.Zone.View exposing (displayZone)
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, fill, minimum, none, row, spacing, text, width)
 import Element.Font as Font
 import Element.Input as Input
 import Group.Group as Group
 import Group.Input exposing (inputGroups)
-import Group.Link exposing (Link)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.Input exposing (inputIdentifiers)
-import Payload
+import Ontology.Configuration exposing (Configuration(..))
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Group.Link exposing (Link)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Payload as Payload
+import Ontology.ProcessType.ProcessType exposing (ProcessType)
+import Ontology.Type as Type
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
-import ProcessType.ProcessType exposing (ProcessType)
 import Random.Pcg.Extended as Random exposing (Seed)
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
-import Type
 import Util exposing (third)
 import Value.Input exposing (inputValues)
 import Value.Valuable exposing (getValues)
-import Value.Value as Value exposing (Value)
-import View exposing (..)
+import Value.Value as Value
+import View exposing (View, closeMenu, floatingContainer, h3)
 import View.FlatSelect exposing (flatSelect)
 import View.MultiSelect exposing (multiSelect)
 import View.Step as Step exposing (Step(..), buttons)
@@ -147,7 +150,7 @@ init s f =
                         Dict.get (Uuid.toString uuid) s.state.types |> Maybe.andThen third
 
                     eventTypes =
-                        Dict.get (Uuid.toString uuid) s.state.processTypes |> Maybe.map .eventTypes |> Maybe.withDefault Dict.empty
+                        Dict.get (Uuid.toString uuid) s.state.processTypes |> Maybe.map (.eventTypes >> List.map (\u -> ( Uuid.toString u, u )) >> Dict.fromList) |> Maybe.withDefault Dict.empty
 
                     gs =
                         Group.groupsOf s.state.grouped uuid |> List.map (\i -> ( Uuid.toString i, i )) |> Dict.fromList
@@ -270,16 +273,14 @@ view model =
     }
 
 
-checkStep : Model -> Result String ()
-checkStep model =
-    case model.step of
-        _ ->
-            Ok ()
+checkStep : Result String ()
+checkStep =
+    Ok ()
 
 
 validate : Model -> Result String ProcessType
 validate m =
-    Ok <| ProcessType HType.ProcessType m.uuid m.type_ m.eventTypes
+    Ok <| ProcessType HType.ProcessType m.uuid m.type_ (Dict.values m.eventTypes)
 
 
 viewContent : Model -> Shared.Model -> Element Msg
@@ -340,6 +341,6 @@ viewContent model s =
     floatingContainer s
         (Just <| Button Step.Cancel)
         "Adding a ProcessType"
-        (List.map (Element.map Button) (buttons model (checkStep model)))
+        (List.map (Element.map Button) (buttons model checkStep))
         [ step
         ]

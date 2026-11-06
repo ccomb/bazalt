@@ -1,16 +1,16 @@
 module EventType.EventType where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import Expression (Expression)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Scope (Scope)
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data EventType = EventType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     , providers :: Scope
@@ -22,9 +22,7 @@ data EventType = EventType
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON EventType where
-    parseJSON :: JSON.Value -> Parser EventType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON EventType where
-    toJSON :: EventType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

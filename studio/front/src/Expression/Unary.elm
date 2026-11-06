@@ -1,13 +1,7 @@
-module Expression.Unary exposing (..)
+module Expression.Unary exposing (all, eval, toShortString, toString)
 
 import Expression.Rational as R exposing (Rational)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
-
-
-type Operator
-    = Neg
-    | Inv
+import Ontology.Expression.Unary exposing (Operator(..))
 
 
 eval : Operator -> Rational -> Rational
@@ -43,30 +37,3 @@ toShortString o =
 all : List Operator
 all =
     [ Neg, Inv ]
-
-
-encode : Operator -> Encode.Value
-encode op =
-    case op of
-        Neg ->
-            Encode.object [ ( "type", Encode.string "Neg" ) ]
-
-        Inv ->
-            Encode.object [ ( "type", Encode.string "Inv" ) ]
-
-
-decoder : Decoder Operator
-decoder =
-    Decode.field "type" Decode.string
-        |> Decode.andThen
-            (\s ->
-                case s of
-                    "Neg" ->
-                        Decode.succeed Neg
-
-                    "Inv" ->
-                        Decode.succeed Inv
-
-                    _ ->
-                        Decode.fail "Unknown Unary Operator"
-            )

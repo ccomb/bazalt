@@ -1,22 +1,23 @@
-module Value.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module Value.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, el, fill, minimum, paddingXY, row, spacing, text, width)
 import Element.Font as Font
 import Element.Input as Input
-import Expression.Editor exposing (view)
-import Payload
+import Expression.Editor
+import Ontology.Payload as Payload
+import Ontology.Scope exposing (Scope)
+import Ontology.Value.ValueType exposing (ValueType)
 import Route exposing (Route, redirect)
-import Scope exposing (Scope(..))
+import Scope
 import Scope.View exposing (selectScope)
 import Shared
 import Spa.Page
 import Util exposing (checkEmptyString)
-import Value.ValueType exposing (ValueType)
-import View exposing (..)
+import View exposing (View, closeMenu, floatingContainer2, h3)
 import View.Step as Step exposing (Msg(..), Step(..), buttons)
-import View.Style exposing (..)
+import View.Style exposing (size)
 
 
 
@@ -178,7 +179,7 @@ update s msg model =
                     , Effect.batch
                         [ Shared.dispatch s <|
                             Maybe.withDefault (Payload.AddedValueType v) <|
-                                Maybe.map (\old -> Payload.ChangedValueType { old = old, new = v }) model.old
+                                Maybe.map (\old -> Payload.ChangedValueType old v) model.old
                         , Effect.fromCmd <| redirect s.navkey <| Route.Entity Route.ValueType (Route.List { type_ = Nothing })
                         ]
                     )

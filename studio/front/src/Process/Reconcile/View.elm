@@ -1,16 +1,16 @@
-module Process.Reconcile.View exposing (view, viewAsEvent, viewAsProcess)
+module Process.Reconcile.View exposing (viewAsEvent, viewAsProcess)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import Dict
-import Element exposing (..)
+import Element exposing (Element, text)
 import Expression.Rational as Rational
-import Hierarchy.Type as HType
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Hierarchy.Type as HType
+import Ontology.Process.Reconcile exposing (Reconciliation)
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
-import Process.Reconcile exposing (Reconciliation)
 import State exposing (State)
-import Type
-import Typed.Type as TType
 import Util exposing (third)
 import View.Smallcard exposing (clickableRemovableCard)
 

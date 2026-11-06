@@ -1,10 +1,11 @@
-module Tree.View exposing (..)
+module Tree.View exposing (inputTreeType)
 
-import Element exposing (..)
+import Ontology.Tree as Tree
+import Element exposing (Element, column, el, fill, padding, pointer, spacing, width, wrappedRow)
 import Element.Background as Background
 import Element.Events exposing (onClick)
 import Tree
-import View exposing (..)
+import View exposing (p)
 import View.Style exposing (color)
 
 

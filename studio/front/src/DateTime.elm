@@ -1,8 +1,6 @@
-module DateTime exposing (decodeMonth, decodeWeekday, encodeMonth, encodeWeekday, monthToLongString, monthToString, toStrMM, toString, weekdayToLongString, weekdayToString, zoneNameToString)
+module DateTime exposing (fromCalendarMonth, fromCalendarWeekday, monthToLongString, monthToString, toStrMM, toString, weekdayToLongString, weekdayToString)
 
-import Element exposing (..)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ontology.Calendar as Calendar
 import Time exposing (Month(..), Posix, Weekday(..), Zone)
 
 
@@ -187,100 +185,66 @@ weekdayToString weekday =
             "Sun"
 
 
-decodeMonth : Decoder Month
-decodeMonth =
-    Decode.string
-        |> Decode.andThen
-            (\m ->
-                case m of
-                    "Jan" ->
-                        Decode.succeed Jan
+fromCalendarMonth : Calendar.Month -> Time.Month
+fromCalendarMonth x =
+    case x of
+        Calendar.Jan ->
+            Time.Jan
 
-                    "Feb" ->
-                        Decode.succeed Feb
+        Calendar.Feb ->
+            Time.Feb
 
-                    "Mar" ->
-                        Decode.succeed Mar
+        Calendar.Mar ->
+            Time.Mar
 
-                    "Apr" ->
-                        Decode.succeed Apr
+        Calendar.Apr ->
+            Time.Apr
 
-                    "May" ->
-                        Decode.succeed May
+        Calendar.May ->
+            Time.May
 
-                    "Jun" ->
-                        Decode.succeed Jun
+        Calendar.Jun ->
+            Time.Jun
 
-                    "Jul" ->
-                        Decode.succeed Jul
+        Calendar.Jul ->
+            Time.Jul
 
-                    "Aug" ->
-                        Decode.succeed Aug
+        Calendar.Aug ->
+            Time.Aug
 
-                    "Sep" ->
-                        Decode.succeed Sep
+        Calendar.Sep ->
+            Time.Sep
 
-                    "Oct" ->
-                        Decode.succeed Oct
+        Calendar.Oct ->
+            Time.Oct
 
-                    "Nov" ->
-                        Decode.succeed Nov
+        Calendar.Nov ->
+            Time.Nov
 
-                    "Dec" ->
-                        Decode.succeed Dec
-
-                    _ ->
-                        Decode.fail <| "Unkown month: " ++ m
-            )
+        Calendar.Dec ->
+            Time.Dec
 
 
-decodeWeekday : Decoder Weekday
-decodeWeekday =
-    Decode.int
-        |> Decode.andThen
-            (\m ->
-                case m of
-                    1 ->
-                        Decode.succeed Mon
+fromCalendarWeekday : Calendar.Weekday -> Time.Weekday
+fromCalendarWeekday x =
+    case x of
+        Calendar.Mon ->
+            Time.Mon
 
-                    2 ->
-                        Decode.succeed Tue
+        Calendar.Tue ->
+            Time.Tue
 
-                    3 ->
-                        Decode.succeed Wed
+        Calendar.Wed ->
+            Time.Wed
 
-                    4 ->
-                        Decode.succeed Thu
+        Calendar.Thu ->
+            Time.Thu
 
-                    5 ->
-                        Decode.succeed Fri
+        Calendar.Fri ->
+            Time.Fri
 
-                    6 ->
-                        Decode.succeed Sat
+        Calendar.Sat ->
+            Time.Sat
 
-                    7 ->
-                        Decode.succeed Sun
-
-                    _ ->
-                        Decode.fail <| "Unkown weekday: " ++ String.fromInt m
-            )
-
-
-encodeWeekday : Weekday -> Encode.Value
-encodeWeekday =
-    weekdayToString >> Encode.string
-
-
-encodeMonth : Month -> Encode.Value
-encodeMonth =
-    monthToString >> Encode.string
-
-
-zoneNameToString : Time.ZoneName -> String
-zoneNameToString zn =
-    case zn of
-        Time.Name name ->
-            name
-
-        Time.Offset offset ->
-            String.fromInt offset
+        Calendar.Sun ->
+            Time.Sun

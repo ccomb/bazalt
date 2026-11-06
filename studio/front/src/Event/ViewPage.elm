@@ -1,30 +1,32 @@
-module Event.ViewPage exposing (Flags, Model, Msg(..), match, page)
+module Event.ViewPage exposing (Flags, Model, Msg, match, page)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import DateTime
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, row, spacing, text)
 import Expression.Rational as Rational
+import Flow
 import Group.View exposing (displayGroupTable)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
 import Ident.View exposing (displayIdentifierDict)
-import Payload exposing (Payload(..))
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Flow exposing (Flow)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Payload as Payload
+import Ontology.Process.Reconcile exposing (Reconciliation)
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
-import Process.Reconcile exposing (Reconciliation)
 import Process.Reconcile.View
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
 import Time exposing (Posix, millisToPosix)
-import Type exposing (Type)
-import Typed.Type as TType
 import Util exposing (third)
 import Value.Valuable exposing (getValues)
 import Value.View exposing (displayValueDict)
-import View exposing (..)
+import View exposing (View, button, closeMenu, floatingContainer, h1, h2)
 
 
 mainTType : Type
@@ -50,7 +52,7 @@ type alias Model =
     , uuid : Uuid
     , provider : Maybe Uuid
     , receiver : Maybe Uuid
-    , resource : Maybe Uuid
+    , flow : Maybe Flow
     , type_ : Maybe Uuid
     , groups : List Uuid
     , when : Posix
@@ -97,7 +99,7 @@ init s f =
       , type_ = Maybe.andThen third (Dict.get (Uuid.toString f.uuid) s.state.types)
       , provider = Maybe.map .provider event
       , receiver = Maybe.map .receiver event
-      , resource = Maybe.map .resource event
+      , flow = Maybe.map .flow event
       , groups =
             s.state.grouped
                 |> Dict.filter (\_ link -> link.groupable == f.uuid)
@@ -159,7 +161,7 @@ viewContent model s =
         , h2 ("Date: " ++ DateTime.toString s.zone model.when)
         , h2
             ("What: "
-                ++ (model.resource |> Maybe.map (displayZone s.state SmallcardZone (Type.TType TType.Resource)) |> Maybe.withDefault "(none)")
+                ++ (model.flow |> Maybe.map (\f -> displayZone s.state SmallcardZone (Flow.userTypeOf f) (Flow.uuidOf f)) |> Maybe.withDefault "(none)")
             )
         , h2 <| "Unallocated: " ++ Rational.toFloatString unallocated
         , h2 ("Provider: " ++ (model.provider |> Maybe.map (displayZone s.state SmallcardZone (Type.TType TType.Agent)) |> Maybe.withDefault "(none)"))

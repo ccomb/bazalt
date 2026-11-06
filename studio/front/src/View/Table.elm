@@ -1,25 +1,26 @@
 module View.Table exposing (hView, headerCell, innerCell, tView)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import Dict
-import Element exposing (..)
+import Element exposing (Color, Column, Element, el, fill, height, padding, spacing, table, text, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Expression.Eval as Eval
 import Expression.Rational as Rational
 import Group.Group exposing (groupsOf)
-import Hierarchy.Type as HType
 import Ident.Identifier as Identifier
-import Ident.IdentifierType exposing (IdentifierType)
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.IdentifierType exposing (IdentifierType)
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
+import Ontology.Value.ValueType exposing (ValueType)
 import Prng.Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
 import Scope.State exposing (containsScope)
 import State exposing (State)
-import Type exposing (Type, toType)
-import Typed.Type as TType
-import Value.ValueType exposing (ValueType)
-import View.Style exposing (..)
+import Type exposing (toType)
+import View.Style exposing (color)
 
 
 headerCell : Color -> String -> Element msg

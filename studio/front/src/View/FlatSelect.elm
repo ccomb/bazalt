@@ -1,15 +1,15 @@
 module View.FlatSelect exposing (Config, flatSelect)
 
 import Dict exposing (Dict)
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, el, fill, height, minimum, none, padding, px, shrink, spacing, text, width, wrappedRow)
 import Element.Border as Border
 import Element.Font as Font
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
 import State exposing (State)
-import Type exposing (Type)
-import View exposing (..)
+import View exposing (h2, p, withDefaultContent)
 import View.Smallcard exposing (tClickableCard, viewHalfCard)
-import View.Style exposing (..)
+import View.Style exposing (color)
 
 
 type alias Config msg =

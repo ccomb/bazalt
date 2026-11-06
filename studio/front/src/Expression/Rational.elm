@@ -1,56 +1,45 @@
-module Expression.Rational exposing (Rational, add, decoder, denominator, divide, encode, fromString, inv, multiply, neg, numerator, one, parse, resultToString, toFloatString, toString, zero)
+module Expression.Rational exposing (Rational, add, fromString, inv, multiply, neg, one, parse, resultToString, toFloatString, toString, zero)
 
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
-
-
-type Rational
-    = Rational Int Int
+import Ontology.Prim as Prim
 
 
-numerator : Rational -> Int
-numerator (Rational n _) =
-    n
+type alias Rational =
+    Prim.Rational
 
 
-denominator : Rational -> Int
-denominator (Rational _ d) =
-    d
+rational : Int -> Int -> Rational
+rational n d =
+    { numerator = n, denominator = d }
 
 
 zero : Rational
 zero =
-    Rational 0 1
+    rational 0 1
 
 
 one : Rational
 one =
-    Rational 1 1
+    rational 1 1
 
 
 neg : Rational -> Rational
-neg (Rational n d) =
-    Rational -n d
+neg r =
+    { r | numerator = -r.numerator }
 
 
 inv : Rational -> Rational
-inv (Rational n d) =
-    Rational d n
+inv r =
+    rational r.denominator r.numerator
 
 
 add : Rational -> Rational -> Rational
-add (Rational n1 d1) (Rational n2 d2) =
-    Rational ((n1 * d2) + (n2 * d1)) (d1 * d2)
+add r1 r2 =
+    rational ((r1.numerator * r2.denominator) + (r2.numerator * r1.denominator)) (r1.denominator * r2.denominator)
 
 
 multiply : Rational -> Rational -> Rational
-multiply (Rational n1 d1) (Rational n2 d2) =
-    Rational (n1 * n2) (d1 * d2)
-
-
-divide : Rational -> Rational -> Rational
-divide r1 r2 =
-    multiply r1 (inv r2)
+multiply r1 r2 =
+    rational (r1.numerator * r2.numerator) (r1.denominator * r2.denominator)
 
 
 fromSlashString : String -> Result String Rational
@@ -61,25 +50,25 @@ fromSlashString =
         >> (\split ->
                 List.head split
                     |> Maybe.andThen String.toInt
-                    >> Maybe.map
+                    |> Maybe.map
                         (\left ->
                             List.tail split
                                 |> Maybe.map (String.join "/")
-                                >> Maybe.andThen String.toInt
-                                >> (\maybeRight ->
+                                |> Maybe.andThen String.toInt
+                                |> (\maybeRight ->
                                         case maybeRight of
                                             Just right ->
                                                 if right == 0 then
                                                     Err "Infinite number"
 
                                                 else
-                                                    Ok <| Rational left right
+                                                    Ok <| rational left right
 
                                             Nothing ->
                                                 Err "Invalid denominator"
                                    )
                         )
-                    >> Maybe.withDefault (Err "Invalid numerator")
+                    |> Maybe.withDefault (Err "Invalid numerator")
            )
 
 
@@ -105,7 +94,7 @@ fromFloatString sep =
                                                 lr =
                                                     String.length right
                                             in
-                                            Maybe.map2 Rational (String.toInt (left ++ right)) (Just (10 ^ lr))
+                                            Maybe.map2 rational (String.toInt (left ++ right)) (Just (10 ^ lr))
                                         )
                             )
            )
@@ -114,7 +103,7 @@ fromFloatString sep =
 
 fromInt : String -> Result String Rational
 fromInt s =
-    String.toInt s |> Maybe.map (\n -> Rational n 1) |> Result.fromMaybe s
+    String.toInt s |> Maybe.map (\n -> rational n 1) |> Result.fromMaybe s
 
 
 fromPercent : String -> Result String Rational
@@ -122,13 +111,14 @@ fromPercent s =
     let
         percent =
             String.right 1 s
-
-        number =
-            String.slice 0 -1 s
     in
     if percent == "%" then
+        let
+            number =
+                String.slice 0 -1 s
+        in
         oneOf "Invalid left part of the percentage" [ fromInt, fromFloatString ".", fromFloatString "," ] number
-            |> Result.map (multiply (Rational 1 100))
+            |> Result.map (multiply (rational 1 100))
 
     else
         Err "Invalid percentage"
@@ -155,34 +145,34 @@ oneOf error ds s =
 
         first :: rest ->
             case first s of
-                Ok rational ->
-                    Ok rational
+                Ok r ->
+                    Ok r
 
                 Err _ ->
                     oneOf error rest s
 
 
 toString : Rational -> String
-toString (Rational n d) =
-    String.fromInt n
-        ++ (if d == 1 then
+toString r =
+    String.fromInt r.numerator
+        ++ (if r.denominator == 1 then
                 ""
 
             else
-                "/" ++ String.fromInt d
+                "/" ++ String.fromInt r.denominator
            )
 
 
 toFloatString : Rational -> String
-toFloatString (Rational n d) =
-    String.fromFloat (toFloat n / toFloat d)
+toFloatString r =
+    String.fromFloat (toFloat r.numerator / toFloat r.denominator)
 
 
 resultToString : Result String Rational -> String
 resultToString result =
     case result of
-        Ok rational ->
-            toString rational
+        Ok r ->
+            toString r
 
         Err err ->
             err
@@ -191,18 +181,3 @@ resultToString result =
 parse : String -> String
 parse =
     fromString >> resultToString
-
-
-decoder : Decoder Rational
-decoder =
-    Decode.map2 Rational
-        (Decode.field "numerator" Decode.int)
-        (Decode.field "denominator" Decode.int)
-
-
-encode : Rational -> Encode.Value
-encode (Rational n d) =
-    Encode.object
-        [ ( "numerator", Encode.int n )
-        , ( "denominator", Encode.int d )
-        ]

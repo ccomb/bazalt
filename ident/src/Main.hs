@@ -13,7 +13,7 @@ import Data.Text qualified as T
 import Data.Time.Clock.POSIX (POSIXTime, getPOSIXTime)
 import Data.UUID.V4 qualified as UUID (nextRandom)
 import Ident.Fragment (Fragment (..))
-import Message (Message (Message), appendMessage, creator, getFragments, messageId, metadata, payload, readMessages, setCreator, setFlow, setFragments)
+import Message (Message (Message), appendMessage, creator, getFragments, loadJournal, messageId, metadata, payload, setCreator, setFlow, setFragments)
 import MessageFlow (MessageFlow (..))
 import MessageId (MessageId)
 import Metadata (Metadata (..))
@@ -235,7 +235,7 @@ serve (Options msgPath storeHost storePort) = do
     storeChan <- dupChan chan -- output channel to the central message store
     -- Reconstruct the state
     putStrLn "Reconstructing the State..."
-    msgs <- readMessages msgPath
+    msgs <- loadJournal msgPath
     state <- takeMVar stateMV
     let newState = foldl update state msgs -- TODO foldr or strict foldl ?
     putMVar stateMV newState

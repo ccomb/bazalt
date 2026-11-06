@@ -1,24 +1,14 @@
-module Ident.IdentifierType exposing (IdentifierType, compare, decoder, encode, initIdentifiers)
+module Ident.IdentifierType exposing (compare, initIdentifiers)
 
 import Dict exposing (Dict)
-import Ident.Fragment as Fragment exposing (Fragment)
-import Ident.Identifier as Identifier exposing (Identifier)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ident.Identifier as Identifier
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Ident.IdentifierType exposing (IdentifierType)
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type exposing (Type)
 import Prng.Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
+import Scope
 import Scope.State exposing (containsScope)
-import Type exposing (Type)
-
-
-type alias IdentifierType =
-    -- This is the definition of an identifier
-    { name : String
-    , fragments : List Fragment
-    , scope : Scope
-    , unique : Bool
-    , mandatory : Bool
-    }
 
 
 initIdentifiers : Dict String ( Uuid, Type, Maybe Uuid ) -> Dict String IdentifierType -> Type -> Maybe Uuid -> Uuid -> Bool -> Dict String Identifier
@@ -56,24 +46,3 @@ initIdentifiers types its t muuid uuid isNew =
 compare : IdentifierType -> String
 compare it =
     Scope.compare it.scope ++ "/" ++ it.name
-
-
-encode : IdentifierType -> Encode.Value
-encode e =
-    Encode.object
-        [ ( "name", Encode.string e.name )
-        , ( "fragments", Encode.list Fragment.encode e.fragments )
-        , ( "scope", Scope.encode e.scope )
-        , ( "unique", Encode.bool e.unique )
-        , ( "mandatory", Encode.bool e.mandatory )
-        ]
-
-
-decoder : Decoder IdentifierType
-decoder =
-    Decode.map5 IdentifierType
-        (Decode.field "name" Decode.string)
-        (Decode.field "fragments" (Decode.list Fragment.decoder))
-        (Decode.field "scope" Scope.decoder)
-        (Decode.field "unique" Decode.bool)
-        (Decode.field "mandatory" Decode.bool)

@@ -1,44 +1,53 @@
-module Event.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module Event.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import Date
 import DateTime.View
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
-import Event.Event exposing (Event)
-import EventType.EventType exposing (EventType)
+import Element exposing (Element, column, fill, none, row, spacing, text, width)
+import Expression.Eval as Eval
+import Expression.Input
 import Expression.Rational as Rational
 import Expression.RationalInput as RationalInput exposing (RationalInput)
+import Flow
 import Group.Group as Group
 import Group.Input exposing (inputGroups)
-import Group.Link exposing (Link)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.Input exposing (inputIdentifiers)
+import Maybe.Extra
 import Message
-import Payload
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Event.Event exposing (Event)
+import Ontology.EventType.EventType exposing (EventType)
+import Ontology.Expression exposing (Expression)
+import Ontology.Flow exposing (Flow(..))
+import Ontology.Group.Link exposing (Link)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Payload as Payload
+import Ontology.Process.Process exposing (Process)
+import Ontology.Process.Reconcile exposing (Reconciliation)
+import Ontology.Resource.Resource exposing (Resource)
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type
+import Ontology.Typed.Type as TType
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Process.Process as Process exposing (Process)
-import Process.Reconcile as Reconcile exposing (Reconciliation, fromAllocations, toAllocations)
+import Process.Reconcile as Reconcile exposing (fromAllocations, toAllocations)
 import Random.Pcg.Extended as Random exposing (Seed)
-import Resource.Resource exposing (Resource)
 import Route exposing (Route, redirect)
-import Scope exposing (Scope(..))
 import Scope.State exposing (containsScope)
 import Shared
 import Spa.Page
 import State exposing (State)
 import Time exposing (millisToPosix)
-import Type
-import Typed.Type as TType
 import Util exposing (andMapR, checkAllOk, checkEmptyDict, checkMaybe, chooseIfSingleton, third)
 import Value.Input exposing (inputValues)
 import Value.Valuable exposing (getValues)
-import Value.Value as Value exposing (Value)
-import View exposing (..)
+import Value.Value as Value
+import View exposing (View, closeMenu, floatingContainer, h1, p)
 import View.FlatSelect exposing (flatSelect)
 import View.MultiSelect exposing (multiSelect)
 import View.Step as Step exposing (Step(..), buttons)
@@ -65,6 +74,7 @@ type alias Model =
     , receiver : Maybe Uuid
     , resourceType : Maybe Uuid -- the type that will be used to create the resource
     , resource : Maybe Uuid -- the created or existing resource (as inflow or outflow)
+    , qty : Maybe Expression
     , allocations : List ( Uuid, RationalInput ) -- a temporary partial allocation of this event to a process
     , calendar : DateTime.View.Model
     , identifiers : Dict String Identifier
@@ -101,6 +111,7 @@ type Msg
     | SelectReceiver (Maybe Uuid)
     | SelectResource (Maybe Uuid)
     | SelectResourceType (Maybe Uuid)
+    | InputQty Expression
     | InputPartialProcesses (List ( Uuid, RationalInput ))
     | InputIdentifier Identifier
     | InputResIdentifier Identifier
@@ -141,10 +152,7 @@ toProcessTypes s muuid =
     s.processTypes
         |> Dict.filter
             (\_ pt ->
-                pt.eventTypes
-                    |> Dict.filter (\_ et -> Just et == muuid)
-                    |> Dict.isEmpty
-                    |> not
+                muuid |> Maybe.map (\et -> List.member et pt.eventTypes) |> Maybe.withDefault False
             )
         |> Dict.values
         |> List.map (\pt -> ( Uuid.toString pt.uuid, pt.uuid ))
@@ -219,6 +227,7 @@ init s f =
                     )
             , resourceType = mrt
             , resource = resource
+            , qty = Maybe.map .qty met
             , allocations = f.related |> Maybe.map (\r -> [ ( r, "0" ) ]) |> Maybe.withDefault []
             , calendar = calinit
             , uuid = newUuid
@@ -227,7 +236,7 @@ init s f =
             , identifiers = getIdentifiers s.state (Type.TType TType.Event) newUuid (Maybe.map .uuid met) True
             , resIdentifiers = getIdentifiers s.state (Type.TType TType.Resource) newResUuid mrt True
             , values = getValues s.state.types s.state.valueTypes s.state.values (Type.TType TType.Event) newUuid (Maybe.map .uuid met) True
-            , resValues = getValues s.state.types s.state.valueTypes s.state.values (Type.TType TType.Resource) newUuid mrt True
+            , resValues = getValues s.state.types s.state.valueTypes s.state.values (Type.TType TType.Resource) newResUuid mrt True
             , gsubmodel = initgroups
             , resgsubmodel = initgroups
             , warning = ""
@@ -265,7 +274,7 @@ init s f =
 
                     resgroups =
                         event
-                            |> Maybe.map .resource
+                            |> Maybe.map (.flow >> Flow.uuidOf)
                             |> Maybe.map
                                 (\ruuid ->
                                     Group.groupsOf s.state.grouped ruuid
@@ -297,7 +306,8 @@ init s f =
                     , eventType = realType |> Maybe.andThen (\puuid -> Dict.get (Uuid.toString puuid) s.state.eventTypes)
                     , provider = event |> Maybe.map .provider
                     , receiver = event |> Maybe.map .receiver
-                    , resource = event |> Maybe.map .resource
+                    , resource = event |> Maybe.map (.flow >> Flow.uuidOf)
+                    , qty = event |> Maybe.map .qty
                     , allocations = toAllocations reconciliations
                     , calendar = Tuple.first caledit
                     , identifiers = getIdentifiers s.state (Type.TType TType.Event) uuid realType False
@@ -328,6 +338,7 @@ update s msg model =
             in
             ( { model
                 | eventType = met
+                , qty = Maybe.map .qty met
                 , provider =
                     chooseIfSingleton
                         (s.state.agents
@@ -370,6 +381,9 @@ update s msg model =
 
         SelectReceiver uuid ->
             ( { model | receiver = uuid }, Effect.none )
+
+        InputQty qty ->
+            ( { model | qty = Just qty }, Effect.none )
 
         SelectResource uuid ->
             ( { model | resource = uuid }, Effect.none )
@@ -442,23 +456,30 @@ update s msg model =
             ( { model | resgsubmodel = submodel }, Effect.fromCmd <| subcmd )
 
         Button Step.Added ->
-            case validate model of
-                Ok ( e, r ) ->
+            case validate s.state model of
+                Ok ( e, created ) ->
                     ( model
                     , Effect.batch
                         [ Shared.dispatchMany s
-                            ([ Payload.AddedEvent e, Payload.AddedResource r ]
-                                ++ List.map Payload.AddedIdentifier (Dict.values model.identifiers)
-                                ++ List.map Payload.AddedIdentifier (Dict.values model.resIdentifiers)
+                            (Payload.AddedEvent e
+                                :: List.map Payload.AddedIdentifier (Dict.values model.identifiers)
                                 ++ List.map Payload.AddedValue (Dict.values model.values)
-                                ++ List.map Payload.AddedValue (Dict.values model.resValues)
+                                -- the identifiers and values of the resource exist only with the resource created here
+                                ++ (Maybe.Extra.toList created
+                                        |> List.concatMap
+                                            (\r ->
+                                                Payload.AddedResource r
+                                                    :: List.map Payload.AddedIdentifier (Dict.values model.resIdentifiers)
+                                                    ++ List.map Payload.AddedValue (Dict.values model.resValues)
+                                            )
+                                   )
                                 ++ List.map (\uuid -> Payload.Grouped (Link (Type.TType TType.Event) e.uuid uuid)) (Dict.values <| Group.Input.added model.gsubmodel)
                                 ++ List.map (\uuid -> Payload.Ungrouped (Link (Type.TType TType.Event) e.uuid uuid)) (Dict.values <| Group.Input.removed model.gsubmodel)
-                                ++ List.map (\uuid -> Payload.Grouped (Link (Type.TType TType.Resource) e.resource uuid)) (Dict.values <| Group.Input.added model.gsubmodel)
-                                ++ List.map (\uuid -> Payload.Ungrouped (Link (Type.TType TType.Event) e.resource uuid)) (Dict.values <| Group.Input.removed model.gsubmodel)
+                                ++ List.map (\uuid -> Payload.Grouped (Link (Type.TType TType.Resource) (Flow.uuidOf e.flow) uuid)) (Dict.values <| Group.Input.added model.resgsubmodel)
+                                ++ List.map (\uuid -> Payload.Ungrouped (Link (Type.TType TType.Resource) (Flow.uuidOf e.flow) uuid)) (Dict.values <| Group.Input.removed model.resgsubmodel)
                                 ++ (if Dict.isEmpty model.processes then
-                                        Dict.values model.processTypes
-                                            |> List.foldl (Shared.uuidAggregator model.seed) []
+                                        model.processTypes
+                                            |> Dict.foldl (always (Shared.uuidAggregator model.seed)) []
                                             |> List.concatMap
                                                 (\( nextUuid, _, pt ) ->
                                                     [ Payload.AddedProcess <| Process TType.Process nextUuid pt
@@ -521,24 +542,46 @@ checkStep model =
             Ok ()
 
 
-validate : Model -> Result String ( Event, Resource )
-validate model =
+validate : State -> Model -> Result String ( Event, Maybe Resource )
+validate s model =
+    -- the flow is a new resource when the event type creates one, else an existing resource
     -- similar to haskell: f <$> a <*> b <*> c <*> d ...
     -- we apply multiple partial applications until we have the full value
     let
+        qty =
+            checkMaybe model.qty "The quantity is invalid"
+
+        created =
+            -- an edited event keeps the resource it created, found below as an existing one
+            if model.isNew && Maybe.map .createResource model.eventType == Just True then
+                Result.map2 (Resource TType.Resource model.resUuid)
+                    (Result.fromMaybe "You must select a Resource Type" model.resourceType)
+                    (qty |> Result.andThen (Eval.exeval s { context = ( Type.TType TType.Event, model.uuid ) } (Dict.union model.values s.values)))
+                    |> Result.map Just
+
+            else
+                Ok Nothing
+
+        resource =
+            created
+                |> Result.andThen
+                    (Maybe.map Ok
+                        >> Maybe.withDefault
+                            (checkMaybe model.resource "You must select or create a Resource"
+                                |> Result.andThen (\uuid -> Dict.get (Uuid.toString uuid) s.resources |> Result.fromMaybe "The selected Resource does not exist")
+                            )
+                    )
+
         e =
             Result.map
                 (Event TType.Event model.uuid (DateTime.View.toPosix model.calendar))
-                (checkMaybe (Maybe.map .uuid model.eventType) "You must select an Event Type")
+                qty
+                |> andMapR (checkMaybe (Maybe.map .uuid model.eventType) "You must select an Event Type")
                 |> andMapR (checkMaybe model.provider "You must select a Provider")
                 |> andMapR (checkMaybe model.receiver "You must select a Receiver")
-                |> andMapR (checkMaybe model.resource "You must select or create a Resource")
-
-        r =
-            Result.fromMaybe "You must select a Resource Type" model.resourceType
-                |> Result.map (Resource TType.Resource model.resUuid)
+                |> andMapR (Result.map ResourceFlow resource)
     in
-    Result.map2 Tuple.pair e r
+    Result.map2 Tuple.pair e created
 
 
 allocateEventToProcess : State -> List ( Uuid, RationalInput ) -> Int -> ( Uuid, RationalInput ) -> Element Msg
@@ -619,8 +662,9 @@ viewContent model s =
                         (model.processTypes
                             |> Dict.values
                             |> List.filterMap (\pt -> Dict.get (Uuid.toString pt) s.state.processTypes)
-                            |> List.map .eventTypes
-                            |> List.foldl Dict.union Dict.empty
+                            |> List.concatMap .eventTypes
+                            |> List.map (\u -> ( Uuid.toString u, u ))
+                            |> Dict.fromList
                         )
 
                 Step.Step StepProvider ->
@@ -668,51 +712,66 @@ viewContent model s =
                         |> Maybe.withDefault (text "This event has no type")
 
                 Step.Step StepResource ->
-                    -- if createResource, we already know the type of the resource
-                    -- (it's defined in the scope of et.resources)
-                    -- If not createResource, we ask to select the resource to add in the event.
-                    if Maybe.map .createResource model.eventType == Just True then
-                        column [ spacing 20 ]
-                            [ flatSelect s.state
-                                { what = Type.HType HType.ResourceType
-                                , muuid = model.resourceType
-                                , onInput = SelectResourceType
-                                , title = "Type:"
-                                , explain = "Choose the type of the new Resource:"
-                                , empty = "(There are no Resource Types yet to choose from)"
-                                , additional = Nothing
-                                }
-                                (s.state.resourceTypes
-                                    |> Dict.filter (\_ r -> model.eventType |> Maybe.map .resources |> Maybe.map (containsScope s.state.types (IsItem (Type.HType r.what) r.uuid)) |> Maybe.withDefault False)
-                                    |> Dict.map (\_ a -> a.uuid)
-                                )
-                            , inputIdentifiers { onEnter = Step.nextMsg model Button Step.NextPage Step.Added, onInput = InputResIdentifier } model.resIdentifiers
-                            , inputValues { onEnter = Step.nextMsg model Button Step.NextPage Step.Added, onInput = InputResValue, context = ( Type.TType TType.Resource, model.resUuid ) } s.state model.resValues
-                            , Element.map ResGroupMsg <| inputGroups { type_ = Type.TType TType.Resource, mpuuid = model.resourceType } s.state model.resgsubmodel
-                            ]
-
-                    else
-                        model.eventType
-                            |> Maybe.map .resources
+                    column [ spacing 20 ]
+                        [ model.qty
                             |> Maybe.map
-                                (\scope ->
-                                    column [ spacing 20 ]
-                                        [ flatSelect s.state
-                                            { what = Type.TType TType.Resource
-                                            , muuid = model.resource
-                                            , onInput = SelectResource
-                                            , title = "Resource:"
-                                            , explain = "Select the resource:"
-                                            , empty = "(There are no resources yet to choose from)"
-                                            , additional = Nothing
-                                            }
-                                            (s.state.resources
-                                                |> Dict.filter (\_ r -> containsScope s.state.types (IsItem (Type.TType r.what) r.uuid) scope)
-                                                |> Dict.map (\_ r -> r.uuid)
-                                            )
-                                        ]
+                                (\qty ->
+                                    Expression.Input.inputExpression
+                                        { onEnter = Step.nextMsg model Button Step.NextPage Step.Added
+                                        , onInput = InputQty
+                                        , context = ( Type.TType TType.Event, model.uuid )
+                                        }
+                                        s.state
+                                        ( [], qty )
+                                        qty
                                 )
-                            |> Maybe.withDefault (text "No resource scope defined")
+                            |> Maybe.withDefault (text "This event has no type")
+                        , -- if createResource, we already know the type of the resource
+                          -- (it's defined in the scope of et.resources)
+                          -- If not createResource, we ask to select the resource to add in the event.
+                          if Maybe.map .createResource model.eventType == Just True then
+                            column [ spacing 20 ]
+                                [ flatSelect s.state
+                                    { what = Type.HType HType.ResourceType
+                                    , muuid = model.resourceType
+                                    , onInput = SelectResourceType
+                                    , title = "Type:"
+                                    , explain = "Choose the type of the new Resource:"
+                                    , empty = "(There are no Resource Types yet to choose from)"
+                                    , additional = Nothing
+                                    }
+                                    (s.state.resourceTypes
+                                        |> Dict.filter (\_ r -> model.eventType |> Maybe.map .resources |> Maybe.map (containsScope s.state.types (IsItem (Type.HType r.what) r.uuid)) |> Maybe.withDefault False)
+                                        |> Dict.map (\_ a -> a.uuid)
+                                    )
+                                , inputIdentifiers { onEnter = Step.nextMsg model Button Step.NextPage Step.Added, onInput = InputResIdentifier } model.resIdentifiers
+                                , inputValues { onEnter = Step.nextMsg model Button Step.NextPage Step.Added, onInput = InputResValue, context = ( Type.TType TType.Resource, model.resUuid ) } s.state model.resValues
+                                , Element.map ResGroupMsg <| inputGroups { type_ = Type.TType TType.Resource, mpuuid = model.resourceType } s.state model.resgsubmodel
+                                ]
+
+                          else
+                            model.eventType
+                                |> Maybe.map .resources
+                                |> Maybe.map
+                                    (\scope ->
+                                        column [ spacing 20 ]
+                                            [ flatSelect s.state
+                                                { what = Type.TType TType.Resource
+                                                , muuid = model.resource
+                                                , onInput = SelectResource
+                                                , title = "Resource:"
+                                                , explain = "Select the resource:"
+                                                , empty = "(There are no resources yet to choose from)"
+                                                , additional = Nothing
+                                                }
+                                                (s.state.resources
+                                                    |> Dict.filter (\_ r -> containsScope s.state.types (IsItem (Type.TType r.what) r.uuid) scope)
+                                                    |> Dict.map (\_ r -> r.uuid)
+                                                )
+                                            ]
+                                    )
+                                |> Maybe.withDefault (text "No resource scope defined")
+                        ]
 
                 Step.Step StepAllocate ->
                     column [ spacing 20 ]

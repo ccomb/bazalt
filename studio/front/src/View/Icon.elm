@@ -1,6 +1,5 @@
 module View.Icon exposing (agent, commitment, config, contract, event, group, process, resource)
 
-import Element exposing (Element)
 import Svg
 import Svg.Attributes as A
 

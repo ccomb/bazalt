@@ -1,14 +1,15 @@
 module Configuration.View exposing (description, view)
 
-import Configuration exposing (Configuration(..))
-import Configuration.Zone as Zone exposing (Zone(..))
+import Configuration.Zone as Zone
 import Configuration.Zone.Fragment as Fragment
 import Configuration.Zone.View exposing (displayZone)
 import Hierarchy.Type as HType
+import Ontology.Configuration exposing (Configuration(..))
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Type as Type
 import Prng.Uuid as Uuid
 import Scope.View
 import Shared
-import Type
 
 
 view : Configuration -> String

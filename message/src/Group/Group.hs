@@ -1,15 +1,15 @@
 module Group.Group where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Scope (Scope)
-import Type (Type)
+import Typed.Type qualified as TType
 
 data Group = Group
-    { what :: Type
+    { what :: TType.Type
     , uuid :: UUID
     , type_ :: UUID
     , parent :: Maybe UUID
@@ -19,9 +19,7 @@ data Group = Group
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Group where
-    parseJSON :: JSON.Value -> Parser Group
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Group where
-    toJSON :: Group -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

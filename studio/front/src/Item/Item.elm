@@ -1,10 +1,10 @@
 module Item.Item exposing (Item)
 
 import Dict exposing (Dict)
-import Ident.Identifier exposing (Identifier)
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Type exposing (Type)
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid exposing (Uuid)
-import Type exposing (Type)
-import Value.Value exposing (Value)
 
 
 type alias Item a =

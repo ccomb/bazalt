@@ -1,14 +1,15 @@
-module Ident.ViewPage exposing (Flags, Model, Msg(..), match, page)
+module Ident.ViewPage exposing (Flags, Model, Msg, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
-import Ident.IdentifierType as VT exposing (IdentifierType)
+import Element exposing (Element, text)
+import Ident.IdentifierType as VT
+import Ontology.Ident.IdentifierType exposing (IdentifierType)
 import Route exposing (Route, redirect)
 import Scope.View
 import Shared
 import Spa.Page
-import View exposing (..)
+import View exposing (View, button, closeMenu, floatingContainer, h1, h2)
 
 
 type alias Flags =

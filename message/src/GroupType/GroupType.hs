@@ -1,15 +1,15 @@
 module GroupType.GroupType where
 
-import Data.Aeson as JSON
-import Data.Aeson.Types (Parser)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.UUID (UUID)
 import GHC.Generics (Generic)
+import Json (taggedOptions)
 import Tree qualified
-import Type (Type)
+import Hierarchy.Type qualified as HType
 
 data GroupType = GroupType
-    { what :: Type
+    { what :: HType.Type
     , uuid :: UUID
     , parent :: Maybe UUID
     , unique :: Bool
@@ -18,9 +18,7 @@ data GroupType = GroupType
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON GroupType where
-    parseJSON :: JSON.Value -> Parser GroupType
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON GroupType where
-    toJSON :: GroupType -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

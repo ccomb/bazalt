@@ -1,8 +1,8 @@
 module Hierarchy.Hierarchic exposing (isAscendantOf)
 
 import Dict exposing (Dict)
+import Ontology.Type exposing (Type)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Type exposing (Type)
 
 
 isAscendantOf : Uuid -> Dict String ( Uuid, Type, Maybe Uuid ) -> Uuid -> Bool

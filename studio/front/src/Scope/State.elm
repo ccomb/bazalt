@@ -1,10 +1,10 @@
-module Scope.State exposing (containsScope, getUpper, getUpperList)
+module Scope.State exposing (containsScope, getUpperList)
 
 import Dict exposing (Dict)
 import Hierarchy.Hierarchic as H
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type exposing (Type)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Scope exposing (Scope(..))
-import Type exposing (Type)
 import Typed.Typed as T
 import Util exposing (otherwise)
 

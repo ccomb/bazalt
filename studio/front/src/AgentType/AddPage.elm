@@ -1,32 +1,34 @@
-module AgentType.AddPage exposing (Flags, Model, Msg(..), Step(..), match, page)
+module AgentType.AddPage exposing (Flags, Model, Msg, Step, match, page)
 
-import AgentType.AgentType exposing (AgentType)
-import Configuration as Config exposing (Configuration(..))
-import Configuration.Zone exposing (Zone(..))
+import Configuration as Config
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, fill, minimum, row, spacing, text, width)
 import Element.Font as Font
 import Element.Input as Input
 import Group.Group as Group
 import Group.Input exposing (inputGroups)
-import Group.Link exposing (Link)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
-import Ident.Identifier as Identifier exposing (Identifier)
+import Ident.Identifier as Identifier
 import Ident.Input exposing (inputIdentifiers)
-import Payload
+import Ontology.AgentType.AgentType exposing (AgentType)
+import Ontology.Configuration exposing (Configuration(..))
+import Ontology.Group.Link exposing (Link)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Ident.Identifier exposing (Identifier)
+import Ontology.Payload as Payload
+import Ontology.Type as Type
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
 import Random.Pcg.Extended as Random exposing (Seed)
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
-import Type
 import Util exposing (third)
 import Value.Input exposing (inputValues)
 import Value.Valuable exposing (getValues)
-import Value.Value as Value exposing (Value)
-import View exposing (..)
+import Value.Value as Value
+import View exposing (View, closeMenu, floatingContainer, h3)
 import View.FlatSelect exposing (flatSelect)
 import View.Step as Step exposing (Step(..), buttons)
 import View.Style exposing (size)
@@ -80,7 +82,7 @@ page s =
     Spa.Page.element
         { init = init s
         , update = update s
-        , view = view s
+        , view = view
         , subscriptions = \_ -> Sub.none
         }
 
@@ -235,8 +237,8 @@ update s msg model =
                 |> (\( x, y ) -> ( x, Effect.map Button y ))
 
 
-view : Shared.Model -> Model -> View Msg
-view _ model =
+view : Model -> View Msg
+view model =
     { title = "Adding an Agent Type"
     , attributes = []
     , element = viewContent model
@@ -244,11 +246,9 @@ view _ model =
     }
 
 
-checkStep : Model -> Result String ()
-checkStep model =
-    case model.step of
-        _ ->
-            Ok ()
+checkStep : Result String ()
+checkStep =
+    Ok ()
 
 
 validate : Model -> Result String AgentType
@@ -299,6 +299,6 @@ viewContent model s =
     floatingContainer s
         (Just <| Button Step.Cancel)
         "Adding an Agent Type"
-        (List.map (Element.map Button) (buttons model (checkStep model)))
+        (List.map (Element.map Button) (buttons model checkStep))
         [ step
         ]

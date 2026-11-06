@@ -1,13 +1,12 @@
 module Ident.Fragment (Fragment (..)) where
 
-import Data.Aeson as JSON (FromJSON, Options (sumEncoding), ToJSON, Value (..), defaultOptions, genericParseJSON, genericToJSON, parseJSON, toJSON)
-import Data.Aeson.Types (Parser, SumEncoding (..))
+import Calendar (Month, Weekday)
+import Data.Aeson (FromJSON (..), ToJSON (..), genericParseJSON, genericToJSON)
 import Data.Data (Data)
 import Data.Text (Text)
-import Data.Time.Calendar.Month (Month (..))
-import Data.Time.Calendar.WeekDate (DayOfWeek (..))
 import Data.Time.Clock.POSIX (POSIXTime)
 import GHC.Generics
+import Json (taggedOptions)
 
 data Fragment
     = Free Text
@@ -18,7 +17,7 @@ data Fragment
     | YY Int
     | MMMM Month
     | MM Month
-    | Weekday DayOfWeek
+    | Weekday Weekday
     | DoM Int
     | Hour Int
     | Minute Int
@@ -27,9 +26,7 @@ data Fragment
     deriving (Generic, Data, Show, Eq, Ord)
 
 instance FromJSON Fragment where
-    parseJSON :: JSON.Value -> Parser Fragment
-    parseJSON = genericParseJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    parseJSON = genericParseJSON taggedOptions
 
 instance ToJSON Fragment where
-    toJSON :: Fragment -> JSON.Value
-    toJSON = genericToJSON defaultOptions{sumEncoding = TaggedObject{tagFieldName = "type", contentsFieldName = "value"}}
+    toJSON = genericToJSON taggedOptions

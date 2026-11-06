@@ -1,6 +1,6 @@
 module View.Style exposing (Menu(..), WindowSize, color, darken, isMobile, itemHoverstyle, navbarHoverstyle, shadowStyle, size, strcolor)
 
-import Element exposing (..)
+import Element exposing (Color, Decoration, rgb255, rgba, toRgb)
 import Element.Background as Background
 import Element.Border as Border
 

@@ -2,18 +2,17 @@ module AgentType.ListPage exposing (Flags, Model, Msg, match, page)
 
 import Dict
 import Effect exposing (Effect)
-import Element exposing (..)
-import Hierarchy.Type as HType
-import Payload exposing (Payload(..))
+import Element exposing (Element, none, spacing, wrappedRow)
+import Ontology.Hierarchy.Type as HType
+import Ontology.Payload exposing (Payload(..))
+import Ontology.Scope exposing (Scope(..))
+import Ontology.Type as Type
 import Prng.Uuid as Uuid exposing (Uuid)
 import Route exposing (Route)
-import Scope exposing (Scope(..))
 import Shared
 import Spa.Page
-import Type
-import View exposing (..)
+import View exposing (View, button, closeMenu, flatContainer, p, withDefaultContent)
 import View.Smallcard exposing (tClickableRemovableCard)
-import View.Style exposing (..)
 import View.Table exposing (hView)
 import View.Type as ViewType
 
@@ -70,7 +69,7 @@ update s msg model =
             ( model, Route.redirectAdd s.navkey model.route |> Effect.fromCmd )
 
         View uuid ->
-            ( model, Route.redirect s.navkey (Route.Entity Route.AgentType (Route.View {uuid = Uuid.toString uuid, type_ = Nothing})) |> Effect.fromCmd )
+            ( model, Route.redirect s.navkey (Route.Entity Route.AgentType (Route.View { uuid = Uuid.toString uuid, type_ = Nothing })) |> Effect.fromCmd )
 
         ChangeView vt ->
             ( { model | viewtype = vt }, Effect.none )

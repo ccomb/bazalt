@@ -1,24 +1,9 @@
-module Value.Value exposing (Value, compare, decoder, encode, fromUuid, getByUuid)
+module Value.Value exposing (compare, fromUuid, getByUuid)
 
 import Dict exposing (Dict)
-import Expression exposing (Expression)
-import Json.Decode as Decode exposing (Decoder)
-import Json.Encode as Encode
+import Ontology.Value.Value exposing (Value)
 import Prng.Uuid as Uuid exposing (Uuid)
-import Type exposing (Type)
-
-
-type alias Value =
-    { what : Type
-    , for : Uuid
-    , name : String
-    , expr : Expression
-
-    -- TODO!! important:
-    --, value : Result String Rational
-    --, date: Posix
-    -- Ability to store the computed value, and trigger new values
-    }
+import Type
 
 
 compare : Value -> String
@@ -38,22 +23,3 @@ getByUuid uuid all =
         |> Dict.values
         |> List.head
         |> Result.fromMaybe "Missing value"
-
-
-encode : Value -> Encode.Value
-encode v =
-    Encode.object
-        [ ( "what", Type.encode v.what )
-        , ( "for", Uuid.encode v.for )
-        , ( "name", Encode.string v.name )
-        , ( "expr", Expression.encode v.expr )
-        ]
-
-
-decoder : Decoder Value
-decoder =
-    Decode.map4 Value
-        (Decode.field "what" Type.decoder)
-        (Decode.field "for" Uuid.decoder)
-        (Decode.field "name" Decode.string)
-        (Decode.field "expr" Expression.decoder)

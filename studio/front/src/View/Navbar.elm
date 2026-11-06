@@ -1,16 +1,16 @@
 module View.Navbar exposing (view)
 
 import Dict
-import Element exposing (..)
+import Element exposing (Element, alignBottom, alignLeft, alignTop, centerX, centerY, clip, column, el, fill, height, htmlAttribute, link, mouseOver, newTabLink, padding, paddingXY, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Html.Attributes as Attr
 import IOStatus as IO
+import Ontology.MessageFlow exposing (MessageFlow(..))
 import Prng.Uuid as Uuid
 import Route exposing (Route, toString)
 import Shared
-import Type exposing (Type(..))
 import View exposing (zero)
 import View.Style as Style exposing (color, navbarHoverstyle)
 import Websocket as WS
@@ -119,9 +119,11 @@ desktop s r =
                     , View.separator color.navbar.separator
                     , row [ width fill ]
                         [ column [ width fill, paddingXY 5 0 ]
-                            [ el [ paddingXY 0 5, htmlAttribute <| Attr.title <| WS.toText s.wsstatus ] (text <| WS.toEmoji s.wsstatus ++ " WS")
-                            , el [ htmlAttribute <| Attr.title <| IO.toText s.iostatus ] (text <| IO.toEmoji s.iostatus ++ " IO")
-                            ]
+                            ([ el [ paddingXY 0 5, htmlAttribute <| Attr.title <| WS.toText s.wsstatus ] (text <| WS.toEmoji s.wsstatus ++ " WS")
+                             , el [ htmlAttribute <| Attr.title <| IO.toText s.iostatus ] (text <| IO.toEmoji s.iostatus ++ " IO")
+                             ]
+                                ++ refusals s
+                            )
                         , column [ Border.color color.navbar.separator, Border.widthEach { zero | left = 1 }, width fill, centerX, centerY ]
                             [ View.switch Shared.SwitchAdmin s.admin "user" "admin"
                             , View.switch Shared.SwitchOffline s.offline "online" "offline"
@@ -129,6 +131,22 @@ desktop s r =
                         ]
                     ]
                ]
+
+
+refusals : Shared.Model -> List (Element msg)
+refusals s =
+    -- a message refused by a service comes back as Error with its reason
+    s.state.pendingMessages
+        |> Dict.values
+        |> List.filterMap
+            (\m ->
+                case m.meta.flow of
+                    Error reason ->
+                        Just <| el [ paddingXY 5 5, Font.color color.text.warning ] (text <| "⚠ Refused: " ++ reason)
+
+                    _ ->
+                        Nothing
+            )
 
 
 menuitem : Shared.Model -> Route -> Route -> Element msg
@@ -158,13 +176,11 @@ menuitem s currentRoute route =
         )
         [ el [ Background.color (Route.toColor route), width (px 15), alignLeft ] (text " ")
         , link
-            ([]
-                ++ (if active then
-                        [ Background.color color.navbar.hover ]
+            (if active then
+                [ Background.color color.navbar.hover ]
 
-                    else
-                        []
-                   )
+             else
+                []
             )
             { url = toString route, label = text <| Route.toDesc s.state route }
         ]

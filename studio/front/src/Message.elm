@@ -1,10 +1,9 @@
-port module Message exposing (Message(..), base, compare, decoder, encode, exceptIC, getTime, messageId, readMessages, renewSeed, storeMessages, storeMessagesToSend)
+port module Message exposing (compare, getTime, messageId, readMessages, renewSeed, storeMessages, storeMessagesToSend)
 
-import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 import MessageId exposing (MessageId)
-import Metadata exposing (Metadata)
-import Payload exposing (Payload(..))
+import Ontology.Message exposing (Message)
+import Ontology.Metadata exposing (Metadata)
 import Prng.Uuid as Uuid
 import Time exposing (posixToMillis)
 
@@ -37,22 +36,22 @@ port renewSeed : () -> Cmd msg
 -- application/user messages --
 
 
-type Message
-    = Message Metadata Payload
-
-
 messageId : Message -> MessageId
-messageId (Message m _) =
-    ( m.uuid, m.flow )
+messageId =
+    base >> (\m -> ( m.uuid, m.flow ))
 
 
 base : Message -> Metadata
-base (Message b _) =
-    b
+base =
+    .meta
 
 
 compare : Message -> String
-compare (Message m _) =
+compare message =
+    let
+        m =
+            message.meta
+    in
     -- TODO what if 2 messages at the exact same time?
     -- => also use a session uuid
     -- TODO : use UUID instead? see updatePending
@@ -64,34 +63,5 @@ getTime =
     base >> .when
 
 
-exceptIC : List Message -> List Message
-exceptIC es =
-    List.filter
-        (\(Message _ payload) ->
-            case payload of
-                InitiatedConnection _ ->
-                    False
-
-                _ ->
-                    True
-        )
-        es
-
-
 
 -- JSON encoding / decoding
-
-
-encode : Message -> Encode.Value
-encode (Message m p) =
-    Encode.object
-        [ ( "load", Payload.encode p )
-        , ( "meta", Metadata.encode m )
-        ]
-
-
-decoder : Decoder Message
-decoder =
-    Decode.map2 Message
-        (Decode.field "meta" Metadata.decoder)
-        (Decode.field "load" Payload.decoder)

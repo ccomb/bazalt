@@ -1,27 +1,27 @@
-module Process.ViewPage exposing (Flags, Model, Msg(..), match, page)
+module Process.ViewPage exposing (Flags, Model, Msg, match, page)
 
-import Configuration.Zone exposing (Zone(..))
 import Configuration.Zone.View exposing (displayZone)
 import Dict exposing (Dict)
 import Effect exposing (Effect)
-import Element exposing (..)
+import Element exposing (Element, row, spacing, text)
 import Group.View exposing (displayGroupTable)
-import Hierarchy.Type as HType
 import Ident.Identifiable exposing (getIdentifiers)
 import Ident.View exposing (displayIdentifierDict)
-import Payload exposing (Payload(..))
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Hierarchy.Type as HType
+import Ontology.Payload as Payload
+import Ontology.Process.Reconcile exposing (Reconciliation)
+import Ontology.Type as Type exposing (Type)
+import Ontology.Typed.Type as TType
 import Prng.Uuid as Uuid exposing (Uuid)
-import Process.Reconcile exposing (Reconciliation)
 import Process.Reconcile.View
 import Route exposing (Route, redirect)
 import Shared
 import Spa.Page
-import Type exposing (Type)
-import Typed.Type as TType
 import Util exposing (flip, third)
 import Value.Valuable exposing (getValues)
 import Value.View exposing (displayValueDict)
-import View exposing (..)
+import View exposing (View, button, closeMenu, floatingContainer, h1, h2)
 
 
 mainTType : Type
@@ -64,7 +64,7 @@ page s =
     Spa.Page.element
         { init = init s
         , update = update s
-        , view = view s
+        , view = view
         , subscriptions = \_ -> Sub.none
         }
 
@@ -119,8 +119,8 @@ update s msg model =
             ( model, Route.redirect s.navkey (Route.Entity Route.Event (Route.Add { type_ = Just (Uuid.toString p.type_), related = Maybe.map Uuid.toString p.related, step = Nothing })) |> Effect.fromCmd )
 
 
-view : Shared.Model -> Model -> View Msg
-view _ model =
+view : Model -> View Msg
+view model =
     { title = "Process"
     , attributes = []
     , element = viewContent model
@@ -158,12 +158,12 @@ viewContent model s =
                     )
             )
         , row [ spacing 5 ] <|
-            Dict.values <|
-                Dict.map (\_ etuuid -> button.primary (Ok (Add { type_ = etuuid, related = Just model.uuid })) ("Add " ++ displayZone s.state SmallcardZone (Type.HType HType.EventType) etuuid))
-                    (model.type_
-                        |> Maybe.map Uuid.toString
-                        |> Maybe.andThen (flip Dict.get s.state.processTypes)
-                        |> Maybe.map .eventTypes
-                        |> Maybe.withDefault Dict.empty
-                    )
+            List.map
+                (\etuuid -> button.primary (Ok (Add { type_ = etuuid, related = Just model.uuid })) ("Add " ++ displayZone s.state SmallcardZone (Type.HType HType.EventType) etuuid))
+                (model.type_
+                    |> Maybe.map Uuid.toString
+                    |> Maybe.andThen (flip Dict.get s.state.processTypes)
+                    |> Maybe.map .eventTypes
+                    |> Maybe.withDefault []
+                )
         ]

@@ -1,21 +1,23 @@
 module Scope.View exposing (selectScope, toDisplay)
 
-import Configuration.Zone exposing (Zone(..))
+import Ontology.Type as Type
 import Configuration.Zone.View exposing (displayZone)
 import Dict
-import Element exposing (..)
+import Element exposing (Element, alignTop, column, el, fill, minimum, none, padding, paddingXY, row, shrink, spacing, text, width, wrappedRow)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Hierarchy.Hierarchic as H
 import Hierarchy.Type as HType
-import Scope as Scope exposing (Scope(..))
+import Ontology.Configuration.Zone exposing (Zone(..))
+import Ontology.Scope exposing (Scope(..))
+import Scope
 import State exposing (State)
 import Type
 import Typed.Type as TType
-import View exposing (..)
+import View exposing (button)
 import View.Smallcard exposing (clickableCard)
-import View.Style exposing (..)
+import View.Style exposing (color, size)
 
 
 toDisplay : State -> Scope -> String
