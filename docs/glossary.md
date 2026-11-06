@@ -108,7 +108,9 @@ diminutions. Importateur : stock disponible, compte en dollars. Page 186. État 
 
 **Materialized Claim** (créance matérialisée). Déséquilibre d'un échange
 rendu visible, comme une facture. Association : la cotisation due. Page 194.
-État : absent.
+État : écarté. Le solde dû se calcule, et une facture est un groupe
+identifié d'événements et d'engagements
+([ADR 0016](adr/0016-facture-groupe-identifie.md)).
 
 **Reconciliation** (lettrage). Rapprochement des événements qui
 s'équilibrent. Association : affecter un paiement à une adhésion. Page 201. État :
