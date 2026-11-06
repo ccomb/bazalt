@@ -27,7 +27,8 @@ un cas.
 | stock réservé | Reservation | |
 | livraison, réception | Economic Event (outflow, inflow) | |
 | paiement, encaissement | Economic Event | |
-| facture, cotisation due | Materialized Claim | |
+| facture, avoir, pro forma | Group identifié d’événements et d’engagements | [ADR 0016](adr/0016-facture-groupe-identifie.md) |
+| cotisation due, TVA à reverser | Commitment de paiement | le solde dû se calcule |
 | lettrage | Reconciliation | |
 | échéancier de trésorerie | vue sur Commitment et Due Date, par devise | calculée par une capacité ([ADR 0014](adr/0014-donnees-exterieures-et-vues.md)) |
 | incoterm | clause du Contract, avec Location et Custody | à confirmer |
